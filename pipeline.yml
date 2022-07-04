@@ -337,7 +337,7 @@ Resources:
       ServiceRole: !GetAtt 'CodeBuildRole.Arn'
       Source:
         Type: GITHUB
-        Location: https://github.com/BIBSYSDEV/interLibraryLoanMetadata-api.git
+        Location: https://github.com/BIBSYSDEV/dlr-nva-email-service.git
       Triggers:
         Webhook: true
       TimeoutInMinutes: 30
