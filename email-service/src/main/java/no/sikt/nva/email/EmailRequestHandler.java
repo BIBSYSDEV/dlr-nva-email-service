@@ -17,7 +17,7 @@ public class EmailRequestHandler implements RequestHandler<Void, Void> {
 
     @Override
     public Void handleRequest(Void input, Context context) {
-        logger.debug("Request recieved");
+        logger.debug("Request received");
         return null;
     }
 }

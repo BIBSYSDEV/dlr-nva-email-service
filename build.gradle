@@ -10,7 +10,7 @@ targetCompatibility = JavaVersion.VERSION_11 // bytecode target version
 
 wrapper {
     distributionType = Wrapper.DistributionType.ALL
-    gradleVersion = "7.2"
+    gradleVersion = "7.4.2"
 }
 
 allprojects {

@@ -2,13 +2,16 @@ plugins {
     id 'groovy-gradle-plugin'
 }
 
+sourceCompatibility = JavaVersion.VERSION_11  // source-code version and must be <= targetCompatibility
+targetCompatibility = JavaVersion.VERSION_11 // bytecode target version
+
 repositories {
     gradlePluginPortal()
 }
 
 wrapper {
     distributionType = Wrapper.DistributionType.ALL
-    gradleVersion = "7.2"
+    gradleVersion = "7.4.2"
 }
 
 dependencies {
