@@ -62,8 +62,9 @@ Resources:
           CustomStatements:
             - Effect: 'Allow'
               Action: 'execute-api:Invoke'
-              Resource: [ 'execute-api:/*/*/*' ]
-              Principal: '${AWS::AccountId}'
+              Resource: [ 'execute-api:/email' ]
+              Principal:
+                AWS: "arn:aws:iam::${AWS::AccountId}:root"
   DlrNvaEmailServiceFunction:
     Type: AWS::Serverless::Function
     Properties:
