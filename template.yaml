@@ -133,5 +133,5 @@ Resources:
           Type: Api
           Properties:
             RestApiId: !Ref EmailGatewayAPI
-            method: post
-            path: /email
+            Method: post
+            Path: /email
