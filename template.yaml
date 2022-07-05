@@ -59,12 +59,11 @@ Resources:
             Location: ./docs/openapi.yaml
       Auth:
         ResourcePolicy:
-          CustomStatements: {
-            Effect: 'Allow',
-            Action: 'execute-api:Invoke'
-            Resource: [ 'execute-api:/*/*/*' ]
-            Principal: '${AWS::AccountId}'
-          }
+          CustomStatements:
+            - Effect: 'Allow',
+              Action: 'execute-api:Invoke'
+              Resource: [ 'execute-api:/*/*/*' ]
+              Principal: '${AWS::AccountId}'
   DlrNvaEmailServiceFunction:
     Type: AWS::Serverless::Function
     Properties:
