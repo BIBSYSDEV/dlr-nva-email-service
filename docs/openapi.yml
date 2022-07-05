@@ -1,0 +1,85 @@
+openapi: 3.0.0
+info:
+  version: '1.0'
+  title: 'email'
+  license:
+    name: MIT
+paths:
+  /email:
+    post:
+      summary: 'Sample endpoint: Sends an email with specified content'
+      operationId: postEmail
+      tags:
+        - email
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Email'
+      responses:
+        '200':
+          description: 'Sample response: Details about a user by ID'
+          headers:
+            x-next:
+              description: A link to the next page of responses
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Response'
+        '500':
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    Email:
+      type: object
+      required:
+        - from_name
+        - to_name
+        - subject
+      properties:
+        from_name:
+          type: string
+          minLength: 3
+          maxLength: 256
+        to_name:
+          type: string
+          minLength: 3
+          maxLength: 256
+        subject:
+          type: string
+          minLength: 3
+          maxLength: 256
+        cc:
+          type: string
+          minLength: 3
+          maxLength: 256
+        bcc:
+          type: string
+          minLength: 3
+          maxLength: 256
+        text:
+          type: string
+          maxLength: 65000
+        text_html:
+          type: string
+          maxLength: 65000
+    Response:
+      type: string
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: integer
+          format: int32
+        message:
+          type: string

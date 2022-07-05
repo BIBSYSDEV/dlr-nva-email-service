@@ -53,73 +53,10 @@ Resources:
         - ResourcePath: /email
           HttpMethod: POST
       DefinitionBody:
-        openapi: 3.0.0
-        info:
-          title: Email service for NVA and DLR
-          version: '1.0'
-        x-amazon-apigateway-request-validators:
-          body-only:
-            validateRequestBody: true
-            validateRequestParameters: false
-        paths:
-          /email:
-            post:
-              summary: Sends email
-              description: Sends email with specification in the request body
-              consumes:
-                - application/json
-              produces:
-                - application/json
-              x-amazon-apigateway-request-validator : body-only
-              x-amazon-apigateway-integration:
-                uri:
-                  Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${DlrNvaEmailServiceFunction.Arn}/invocations
-                responses: { }
-                httpMethod: POST
-                type: AWS_PROXY
-              requestBody:
-                required: true
-                content:
-                  application/json:
-                    schema:
-                      $ref: '#/components/schemas/Email'
-
-  components:
-    schemas:
-      Email:
-        type: object
-        required:
-          - from_name
-          - to_name
-          - subject
-        properties:
-          from_name:
-            type: string
-            minLength: 3
-            maxLength: 256
-          to_name:
-            type: string
-            minLength: 3
-            maxLength: 256
-          subject:
-            type: string
-            minLength: 3
-            maxLength: 256
-          cc:
-            type: string
-            minLength: 3
-            maxLength: 256
-          bcc:
-            type: string
-            minLength: 3
-            maxLength: 256
-          text:
-            type: string
-            maxLength: 65000
-          text_html:
-            type: string
-            maxLength: 65000
-
+        'Fn::Transform':
+          Name: AWS::Include
+          Parameters:
+            Location: ./docs/openapi.yaml
   DlrNvaEmailServiceFunction:
     Type: AWS::Serverless::Function
     Properties:
