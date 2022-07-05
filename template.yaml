@@ -69,7 +69,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       CodeUri: email-service
-      Handler: no.sikt.nva.email-service.EmailRequestHandler::handleRequest
+      Handler: no.sikt.nva.email.EmailRequestHandler::handleRequest
       Role: !GetAtt DlrNvaEmailServiceRole.Arn
       Runtime: java11
       MemorySize: 1798
