@@ -4,6 +4,10 @@ info:
   title: 'email'
   license:
     name: MIT
+  x-amazon-apigateway-request-validators:
+    body_only:
+      validateRequestBody: true
+      validateRequestParameters: false
 paths:
   /email:
     post:
@@ -11,6 +15,10 @@ paths:
       operationId: postEmail
       tags:
         - email
+      x-amazon-apigateway-request-validator: body_only
+      x-amazon-apigateway-integration object:
+        uri:
+          Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${DlrNvaEmailServiceFunction.Arn}/invocations
       requestBody:
         required: true
         content:
