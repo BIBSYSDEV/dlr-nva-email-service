@@ -60,7 +60,7 @@ Resources:
       Auth:
         ResourcePolicy:
           CustomStatements:
-            - Effect: 'Allow',
+            - Effect: 'Allow'
               Action: 'execute-api:Invoke'
               Resource: [ 'execute-api:/*/*/*' ]
               Principal: '${AWS::AccountId}'
