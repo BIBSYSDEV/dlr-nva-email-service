@@ -16,9 +16,12 @@ paths:
       tags:
         - email
       x-amazon-apigateway-request-validator: body_only
-      x-amazon-apigateway-integration object:
+      x-amazon-apigateway-integration:
         uri:
           Fn::Sub: arn:aws:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${DlrNvaEmailServiceFunction.Arn}/invocations
+        payloadFormatVersion: 1.0
+        httpMethod: POST
+        type: AWS_PROXY
       requestBody:
         required: true
         content:
