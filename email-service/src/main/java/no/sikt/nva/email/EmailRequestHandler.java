@@ -6,7 +6,7 @@ import nva.commons.core.JacocoGenerated;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class EmailRequestHandler implements RequestHandler<Void, Void> {
+public class EmailRequestHandler implements RequestHandler<Void, String> {
 
     private static final Logger logger = LoggerFactory.getLogger(EmailRequestHandler.class);
 
@@ -16,8 +16,8 @@ public class EmailRequestHandler implements RequestHandler<Void, Void> {
 
 
     @Override
-    public Void handleRequest(Void input, Context context) {
-        logger.debug("Request received");
-        return null;
+    public String handleRequest(Void input, Context context) {
+        logger.info("Request received");
+        return "hello world";
     }
 }
