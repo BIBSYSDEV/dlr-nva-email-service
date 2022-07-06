@@ -1,8 +1,5 @@
 
 dependencies {
-    api(libs.nva.datamodel) {
-        exclude group: 'com.github.bibsysdev', module: 'nva-commons'
-    }
 
     implementation libs.nva.json
     implementation libs.nva.core
