@@ -45,7 +45,7 @@ Resources:
   EmailGatewayAPI:
     Type: AWS::Serverless::Api
     Properties:
-      Name: "EmailServiceGateway"
+      Name: !Sub "${AWS::StackName}"
       StageName: v1
       EndpointConfiguration:
         Type: PRIVATE
@@ -68,7 +68,6 @@ Resources:
   DlrNvaEmailServiceFunction:
     Type: AWS::Serverless::Function
     Properties:
-      Name: "EmailServiceLambdaFunction"
       CodeUri: email-service
       Handler: no.sikt.nva.email.EmailRequestHandler::handleRequest
       Role: !GetAtt DlrNvaEmailServiceRole.Arn
