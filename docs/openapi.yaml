@@ -4,10 +4,10 @@ info:
   title: 'email'
   license:
     name: MIT
-  x-amazon-apigateway-request-validators:
-    body_only:
-      validateRequestBody: true
-      validateRequestParameters: false
+x-amazon-apigateway-request-validators:
+  body_only:
+    validateRequestBody: true
+    validateRequestParameters: false
 paths:
   /email:
     post:
