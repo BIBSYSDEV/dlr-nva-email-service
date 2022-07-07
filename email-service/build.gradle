@@ -6,6 +6,7 @@ dependencies {
     implementation libs.nva.events
     implementation libs.nva.apigateway
 
+    implementation libs.aws.ses
     implementation libs.aws.lambda.java.core
     implementation libs.bundles.logging
 
