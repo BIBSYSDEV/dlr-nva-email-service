@@ -58,8 +58,10 @@ class EmailRequestHandlerTest {
                                              randomString());
     }
 
+    //Request body validation happens at ApiGateway according to specifications in ./docs/openapi.yaml,
+    // so no need for programmatic validation of every input field.
     @Test
-    public void sendsEmailSuccessfully() throws ApiGatewayException {
+    public void sendsEmailSuccessfullyWhenAmazonSimpleEmailServiceIsNotThrowingException() throws ApiGatewayException {
         var trackId = randomString();
         var sendEmailResult = new SendEmailResult();
         sendEmailResult.setMessageId(trackId);
@@ -84,7 +86,7 @@ class EmailRequestHandlerTest {
     }
 
     //Request body validation happens at ApiGateway according to specifications in ./docs/openapi.yaml,
-    // so no need for programmatic validation of certain fields.
+    // so no need for programmatic validation of every input field.
 
     @Test
     public void sendsErrorWhenBothTextAndTextHtmlIsMissing() {
