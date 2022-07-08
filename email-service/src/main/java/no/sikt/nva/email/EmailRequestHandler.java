@@ -100,7 +100,7 @@ public class EmailRequestHandler extends ApiGatewayHandler<EmailRequest, String>
                    .withBccAddresses(emailRequest.getBcc());
     }
 
-    @SuppressWarnings("PMD.TooManyFields")
+    @SuppressWarnings("PMD.InvalidLogMessageFormat")
     private void validateRequestBody(EmailRequest emailRequest) throws EmailException {
         if (Objects.isNull(emailRequest.getText())
             && Objects.isNull(emailRequest.getTextHtml())) {
