@@ -53,7 +53,6 @@ class EmailRequestHandlerTest {
                                              "test1@test.no",
                                              "test2@test.no",
                                              "test3.test.no",
-                                             "test4@test.no",
                                              randomString(),
                                              randomString(),
                                              randomString());

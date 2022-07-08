@@ -10,7 +10,6 @@ public class EmailRequest {
 
     private String fromName;
     private String toName;
-    private String toAddress;
     private String cc;
     private String bcc;
     private String subject;
@@ -20,7 +19,6 @@ public class EmailRequest {
     @JsonCreator
     public EmailRequest(@JsonProperty("from_name") String fromName,
                         @JsonProperty("to_name") String toName,
-                        @JsonProperty("to_address") String toAddress,
                         @JsonProperty("cc") String cc,
                         @JsonProperty("bcc") String bcc,
                         @JsonProperty("subject") String subject,
@@ -28,7 +26,6 @@ public class EmailRequest {
                         @JsonProperty("text_html") String textHtml) {
         this.fromName = fromName;
         this.toName = toName;
-        this.toAddress = toAddress;
         this.cc = cc;
         this.bcc = bcc;
         this.subject = subject;
@@ -42,14 +39,6 @@ public class EmailRequest {
 
     public void setToName(String toName) {
         this.toName = toName;
-    }
-
-    public String getToAddress() {
-        return toAddress;
-    }
-
-    public void setToAddress(String toAddress) {
-        this.toAddress = toAddress;
     }
 
     public String getCc() {
@@ -104,7 +93,6 @@ public class EmailRequest {
     @Override
     public int hashCode() {
         return Objects.hash(getToName(),
-                            getToAddress(),
                             getCc(),
                             getBcc(),
                             getSubject(),
@@ -124,7 +112,6 @@ public class EmailRequest {
         }
         EmailRequest that = (EmailRequest) o;
         return Objects.equals(getToName(), that.getToName())
-               && Objects.equals(getToAddress(), that.getToAddress())
                && Objects.equals(getCc(), that.getCc())
                && Objects.equals(getBcc(), that.getBcc())
                && Objects.equals(getSubject(), that.getSubject())
