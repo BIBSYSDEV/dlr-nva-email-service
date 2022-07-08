@@ -65,6 +65,7 @@ public class EmailRequestHandler extends ApiGatewayHandler<EmailRequest, String>
                    .orElseThrow(this::logFailureAndThrowEmailException);
     }
 
+    @SuppressWarnings("PMD.InvalidLogMessageFormat")
     private EmailException logFailureAndThrowEmailException(Failure<SendEmailResult> failure) {
         logger.warn(COULD_NOT_SEND_EMAIL_MESSAGE, failure.getException());
         return new EmailException(COULD_NOT_SEND_EMAIL_MESSAGE, HttpURLConnection.HTTP_INTERNAL_ERROR);
