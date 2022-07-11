@@ -8,8 +8,7 @@ import nva.commons.core.JacocoGenerated;
 @JacocoGenerated
 public class EmailRequest {
 
-    private String fromName;
-    private String toName;
+    private String fromAddress;
     private String toAddress;
     private String cc;
     private String bcc;
@@ -18,30 +17,20 @@ public class EmailRequest {
     private String textHtml;
 
     @JsonCreator
-    public EmailRequest(@JsonProperty("from_name") String fromName,
-                        @JsonProperty("to_name") String toName,
+    public EmailRequest(@JsonProperty("from_address") String fromAddress,
                         @JsonProperty("to_address") String toAddress,
                         @JsonProperty("cc") String cc,
                         @JsonProperty("bcc") String bcc,
                         @JsonProperty("subject") String subject,
                         @JsonProperty("text") String text,
                         @JsonProperty("text_html") String textHtml) {
-        this.fromName = fromName;
-        this.toName = toName;
+        this.fromAddress = fromAddress;
         this.toAddress = toAddress;
         this.cc = cc;
         this.bcc = bcc;
         this.subject = subject;
         this.text = text;
         this.textHtml = textHtml;
-    }
-
-    public String getToName() {
-        return toName;
-    }
-
-    public void setToName(String toName) {
-        this.toName = toName;
     }
 
     public String getToAddress() {
@@ -92,25 +81,24 @@ public class EmailRequest {
         this.textHtml = textHtml;
     }
 
-    public String getFromName() {
-        return fromName;
+    public String getFromAddress() {
+        return fromAddress;
     }
 
-    public void setFromName(String fromName) {
-        this.fromName = fromName;
+    public void setFromAddress(String fromAddress) {
+        this.fromAddress = fromAddress;
     }
 
     @JacocoGenerated
     @Override
     public int hashCode() {
-        return Objects.hash(getToName(),
-                            getToAddress(),
+        return Objects.hash(getToAddress(),
                             getCc(),
                             getBcc(),
                             getSubject(),
                             getText(),
                             getTextHtml(),
-                            getFromName());
+                            getFromAddress());
     }
 
     @JacocoGenerated
@@ -123,14 +111,13 @@ public class EmailRequest {
             return false;
         }
         EmailRequest that = (EmailRequest) o;
-        return Objects.equals(getToName(), that.getToName())
-               && Objects.equals(getToAddress(), that.getToAddress())
+        return Objects.equals(getToAddress(), that.getToAddress())
                && Objects.equals(getCc(), that.getCc())
                && Objects.equals(getBcc(), that.getBcc())
                && Objects.equals(getSubject(), that.getSubject())
                && Objects.equals(getText(), that.getText())
                && Objects.equals(getTextHtml(), that.getTextHtml())
-               && Objects.equals(getFromName(), that.getFromName())
+               && Objects.equals(getFromAddress(), that.getFromAddress())
             ;
     }
 }
