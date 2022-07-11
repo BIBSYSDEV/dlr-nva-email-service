@@ -55,11 +55,11 @@ components:
         - to_name
         - subject
       properties:
-        from_name:
+        from_address:
           type: string
           minLength: 3
           maxLength: 256
-        to_name:
+        to_address:
           type: string
           minLength: 3
           maxLength: 256

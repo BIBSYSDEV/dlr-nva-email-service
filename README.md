@@ -15,8 +15,8 @@ Atleast one of text and text_html must be present.
 POST:
 ```json
     {
-  "from_name": "noreply@test.com",
-  "to_name": "test1@test.com",
+  "from_address": "noreply@test.com",
+  "to_address": "test1@test.com",
   "cc": "test2@test.com",
   "bcc": "test3@test.com",
   "subject": "test subject",

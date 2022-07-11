@@ -75,7 +75,7 @@ public class EmailRequestHandler extends ApiGatewayHandler<EmailRequest, String>
         return new SendEmailRequest()
                    .withDestination(getDestination(emailRequest))
                    .withMessage(getMessage(emailRequest))
-                   .withSource(emailRequest.getFromName())
+                   .withSource(emailRequest.getFromAddress())
                    .withConfigurationSetName(CONFIGSET);
     }
 
@@ -96,7 +96,7 @@ public class EmailRequestHandler extends ApiGatewayHandler<EmailRequest, String>
 
     private Destination getDestination(EmailRequest emailRequest) {
         return new Destination()
-                   .withToAddresses(emailRequest.getToName())
+                   .withToAddresses(emailRequest.getToAddress())
                    .withCcAddresses(emailRequest.getCc())
                    .withBccAddresses(emailRequest.getBcc());
     }
