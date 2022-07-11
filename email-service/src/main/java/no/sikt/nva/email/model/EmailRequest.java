@@ -17,15 +17,15 @@ public class EmailRequest {
     private String textHtml;
 
     @JsonCreator
-    public EmailRequest(@JsonProperty("from_address") String fromName,
-                        @JsonProperty("to_address") String toName,
+    public EmailRequest(@JsonProperty("from_address") String fromAddress,
+                        @JsonProperty("to_address") String toAddress,
                         @JsonProperty("cc") String cc,
                         @JsonProperty("bcc") String bcc,
                         @JsonProperty("subject") String subject,
                         @JsonProperty("text") String text,
                         @JsonProperty("text_html") String textHtml) {
-        this.fromAddress = fromName;
-        this.toAddress = toName;
+        this.fromAddress = fromAddress;
+        this.toAddress = toAddress;
         this.cc = cc;
         this.bcc = bcc;
         this.subject = subject;
