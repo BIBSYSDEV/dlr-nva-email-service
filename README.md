@@ -7,9 +7,13 @@ This API is only available to other services internal at the same aws account.
 AWS requires access to SES by either applying for production access, 
 or by verifying to_email addresses manually in the console.
 
+Parameter "ApiDomain" must be a route 53 DNS in the same account, in order to set up verified domain automatically.
+
+
 ## Sending requests
-from_name, to_name and subject are required fields.
-Atleast one of text and text_html must be present.
+to_address, text_html, text and subject are required fields.
+
+Optional from_address can be set, but it has to be verified first manually with AWS SES.
 
 ### Sample
 POST:

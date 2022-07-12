@@ -10,3 +10,6 @@ dependencies {
     testImplementation libs.nva.testutils
 }
 
+test{
+    environment "DEFAULT_FROM_ADDRESS", "no-reply@sandbox.nva.aws.unit.no"
+}
