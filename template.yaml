@@ -81,7 +81,7 @@ Resources:
       Environment:
         Variables:
           ALLOWED_ORIGIN: '*'
-          DEFAULT_FROM_ADDRESS: "no-reply@${ApiDomain}"
+          DEFAULT_FROM_ADDRESS: "no-reply@${CustomDomain}"
       Events:
         SendEmailRequest:
           Type: Api
@@ -98,6 +98,6 @@ Resources:
         SigningEnabled: true
       DkimSigningAttributes:
         NextSigningKeyLength: 'RSA_2048_BIT'
-      EmailIdentity: !Ref ApiDomain
+      EmailIdentity: !Ref CustomDomain
       FeedbackAttributes:
         EmailForwardingEnabled: true
