@@ -51,8 +51,8 @@ components:
     Email:
       type: object
       required:
-        - from_name
-        - to_name
+        - from_address
+        - to_address
         - subject
       properties:
         from_address:
