@@ -81,7 +81,7 @@ Resources:
       Environment:
         Variables:
           ALLOWED_ORIGIN: '*'
-          DEFAULT_FROM_ADDRESS: "nor-reply@${ApiDomain}"
+          DEFAULT_FROM_ADDRESS: "no-reply@${ApiDomain}"
       Events:
         SendEmailRequest:
           Type: Api
@@ -90,6 +90,7 @@ Resources:
             Method: post
             Path: /email
 
+# Attempting to set up automatically verified from address domain:
   VerifiedFromSenderForSimpleEmail:
     Type: AWS::SES::EmailIdentity
     Properties:
