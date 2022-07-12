@@ -4,10 +4,10 @@ Description: >
   Lambda sending emails
 
 Parameters:
-  ApiDomain:
+  CustomDomain:
     Type: 'AWS::SSM::Parameter::Value<String>'
-    Description: The Api domain
-    Default: /NVA/ApiDomain
+    Description: The default domain that is used as from_address
+    Default: CustomDomain
 
 Globals:
   Function:
