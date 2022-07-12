@@ -3,6 +3,11 @@ Transform: AWS::Serverless-2016-10-31
 Description: >
   Lambda sending emails
 
+Parameters:
+  ApiDomain:
+    Type: 'AWS::SSM::Parameter::Value<String>'
+    Description: The Api domain
+    Default: /NVA/ApiDomain
 
 Globals:
   Function:
@@ -76,6 +81,7 @@ Resources:
       Environment:
         Variables:
           ALLOWED_ORIGIN: '*'
+          DEFAULT_FROM_ADDRESS: "no-reply@${ApiDomain}"
       Events:
         SendEmailRequest:
           Type: Api
@@ -83,3 +89,15 @@ Resources:
             RestApiId: !Ref EmailGatewayAPI
             Method: post
             Path: /email
+
+# Attempting to set up automatically verified from address domain:
+  VerifiedFromSenderForSimpleEmail:
+    Type: AWS::SES::EmailIdentity
+    Properties:
+      DkimAttributes:
+        SigningEnabled: true
+      DkimSigningAttributes:
+        NextSigningKeyLength: 'RSA_2048_BIT'
+      EmailIdentity: !Ref ApiDomain
+      FeedbackAttributes:
+        EmailForwardingEnabled: true
