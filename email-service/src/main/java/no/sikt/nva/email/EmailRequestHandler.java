@@ -30,7 +30,6 @@ public class EmailRequestHandler extends ApiGatewayHandler<EmailRequest, String>
         "Invalid request body, both text and text_html are missing";
     public static final String EMAIL_LOG_INFO_TRACK_ID = "email sent with track id %s";
     public static final String UTF_8 = "UTF-8";
-    private static final String CONFIGSET = "ConfigSet";
     private static final Logger logger = LoggerFactory.getLogger(EmailRequestHandler.class);
     private final AmazonSimpleEmailService amazonSimpleEmailService;
 
@@ -75,8 +74,7 @@ public class EmailRequestHandler extends ApiGatewayHandler<EmailRequest, String>
         return new SendEmailRequest()
                    .withDestination(getDestination(emailRequest))
                    .withMessage(getMessage(emailRequest))
-                   .withSource(emailRequest.getFromAddress())
-                   .withConfigurationSetName(CONFIGSET);
+                   .withSource(emailRequest.getFromAddress());
     }
 
     private Message getMessage(EmailRequest emailRequest) {
