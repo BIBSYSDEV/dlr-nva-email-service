@@ -81,7 +81,7 @@ Resources:
       Environment:
         Variables:
           ALLOWED_ORIGIN: '*'
-          DEFAULT_FROM_ADDRESS: "no-reply@${CustomDomain}"
+          DEFAULT_FROM_ADDRESS: !Sub "no-reply@${CustomDomain}"
       Events:
         SendEmailRequest:
           Type: Api
