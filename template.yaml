@@ -4,10 +4,25 @@ Description: >
   Lambda sending emails
 
 Parameters:
+  CognitoAuthorizerArn:
+    Type: 'AWS::SSM::Parameter::Value<String>'
+    Description: Reference to Cognito UserPool for the stage
+    Default: CognitoAuthorizerArn
   CustomDomain:
     Type: 'AWS::SSM::Parameter::Value<String>'
     Description: The default domain that is used as from_address
     Default: CustomDomain
+  CustomDomainBasePath:
+    Type: String
+    Description: Base path mapping in CustomDomain
+    Default: email
+  Suffix:
+    Type: String
+    Default: ''
+    Description: Suffix used for naming resources for feature branches to avoid conflicts.
+
+  Conditions:
+    WithSuffix: !Not [ !Equals [ !Ref Suffix, '' ] ]
 
 Globals:
   Function:
@@ -50,10 +65,9 @@ Resources:
   EmailGatewayAPI:
     Type: AWS::Serverless::Api
     Properties:
-      Name: !Sub "${AWS::StackName}"
       StageName: v1
       EndpointConfiguration:
-        Type: PRIVATE
+        Type: REGIONAL
       MethodSettings:
         - ResourcePath: /email
           HttpMethod: POST
@@ -62,14 +76,7 @@ Resources:
           Name: AWS::Include
           Parameters:
             Location: ./docs/openapi.yaml
-      Auth:
-        ResourcePolicy:
-          CustomStatements:
-            - Effect: 'Allow'
-              Action: 'execute-api:Invoke'
-              Resource: [ 'execute-api:/email' ]
-              Principal:
-                AWS: "arn:aws:iam::${AWS::AccountId}:root"
+
   DlrNvaEmailServiceFunction:
     Type: AWS::Serverless::Function
     Properties:
@@ -90,7 +97,20 @@ Resources:
             Method: post
             Path: /email
 
-# Attempting to set up automatically verified from address domain:
+  EmailServiceBasePathMapping:
+    Type: AWS::ApiGateway::BasePathMapping
+    Properties:
+      BasePath:
+        !If
+        - WithSuffix
+        - !Sub ${CustomDomainBasePath}-${Suffix}
+        - !Sub ${CustomDomainBasePath}
+      DomainName: !Ref ApiDomain
+      RestApiId: !Ref EmailGatewayAPI
+      Stage: !Ref EmailGatewayAPI.Stage
+
+# Set up automatically verified from_address domain: This will only work for Route 53 domains.
+# Non route 53 domains needs manually updating certificates.
   VerifiedFromSenderForSimpleEmail:
     Type: AWS::SES::EmailIdentity
     Properties:
