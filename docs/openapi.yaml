@@ -13,6 +13,8 @@ paths:
     post:
       summary: 'Sample endpoint: Sends an email with specified content'
       operationId: postEmail
+      security:
+        - CognitoUserPool: ['https://api.nva.unit.no/scopes/backend', 'https://api.nva.unit.no/scopes/frontend', 'aws.cognito.signin.user.admin']
       tags:
         - email
       x-amazon-apigateway-request-validator: body_only
@@ -47,6 +49,17 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 components:
+  securitySchemes:
+    CognitoUserPool:
+      type: apiKey
+      name: Authorization
+      in: header
+      x-amazon-apigateway-authtype: cognito_user_pools
+      x-amazon-apigateway-authorizer:
+        type: cognito_user_pools
+        providerARNs:
+          - Ref:
+              CognitoAuthorizerArn
   schemas:
     Email:
       type: object
