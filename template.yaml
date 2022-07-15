@@ -88,7 +88,7 @@ Resources:
           Properties:
             RestApiId: !Ref EmailGatewayAPI
             Method: post
-            Path: !Sub "/${CustomDomainBasePath}"
+            Path: /email
 
   EmailServiceBasePathMapping:
     Type: AWS::ApiGateway::BasePathMapping
