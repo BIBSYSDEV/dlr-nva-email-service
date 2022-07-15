@@ -16,6 +16,10 @@ Parameters:
     Type: String
     Description: Base path mapping in CustomDomain
     Default: email
+  ApiDomain:
+    Type: 'AWS::SSM::Parameter::Value<String>'
+    Description: The Api domain
+    Default: /NVA/ApiDomain
 
 Globals:
   Function:
