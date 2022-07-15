@@ -16,13 +16,6 @@ Parameters:
     Type: String
     Description: Base path mapping in CustomDomain
     Default: email
-  Suffix:
-    Type: String
-    Default: ''
-    Description: Suffix used for naming resources for feature branches to avoid conflicts.
-
-  Conditions:
-    WithSuffix: !Not [ !Equals [ !Ref Suffix, '' ] ]
 
 Globals:
   Function:
@@ -95,16 +88,12 @@ Resources:
           Properties:
             RestApiId: !Ref EmailGatewayAPI
             Method: post
-            Path: /email
+            Path: !Sub "/${CustomDomainBasePath}"
 
   EmailServiceBasePathMapping:
     Type: AWS::ApiGateway::BasePathMapping
     Properties:
-      BasePath:
-        !If
-        - WithSuffix
-        - !Sub ${CustomDomainBasePath}-${Suffix}
-        - !Sub ${CustomDomainBasePath}
+      BasePath: !Sub ${CustomDomainBasePath}
       DomainName: !Ref ApiDomain
       RestApiId: !Ref EmailGatewayAPI
       Stage: !Ref EmailGatewayAPI.Stage
