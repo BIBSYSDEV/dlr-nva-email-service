@@ -20,6 +20,10 @@ Parameters:
     Type: 'AWS::SSM::Parameter::Value<String>'
     Description: The Api domain
     Default: /NVA/ApiDomain
+  ScopusEmailBucketName:
+    Type: String
+    Description: Name of the bucket that receives the scopus emails
+    Default: Scopus-emails
 
 Globals:
   Function:
@@ -102,6 +106,13 @@ Resources:
       RestApiId: !Ref EmailGatewayAPI
       Stage: !Ref EmailGatewayAPI.Stage
 
+  ScopusEmailBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      AccessControl: Private
+      BucketName: !Sub "${ScopusEmailBucketName}-${AWS::AccountId}"
+
+
 # Set up automatically verified from_address domain: This will only work for Route 53 domains.
 # Non route 53 domains needs manually updating certificates.
   VerifiedFromSenderForSimpleEmail:
@@ -114,3 +125,50 @@ Resources:
       EmailIdentity: !Ref CustomDomain
       FeedbackAttributes:
         EmailForwardingEnabled: true
+
+  ScopusImportEmailReceiver:
+    Type: AWS::SES::EmailIdentity
+    Properties:
+      DkimAttributes:
+        SigningEnabled: true
+      DkimSigningAttributes:
+        NextSigningKeyLength: 'RSA_2048_BIT'
+      EmailIdentity: !Sub 'scopus@${CustomDomain}'
+
+#  AllowSiktEmailsToBeReceived:
+#    Type: AWS::SES::ReceiptFilter
+#    Properties:
+#      Filter:
+#        Name: 'allow-sikt-emails'
+#        IpFilter:
+#          Cidr: 40.107.20.62 # TODO: get IP range for SIKT email and not hardcode email ip from the one time we received email.
+#          Policy: Allow
+#
+#  DropAllEmailsFromUnknownIps:
+#    Type: AWS::SES::ReceiptFilter
+#    Properties:
+#      Filter:
+#        Name: 'block-everything'
+#        IpFilter:
+#          Cidr: 0.0.0.0/0
+#          Policy: Block
+
+  ReceiveEmailRuleSet:
+    Type: AWS::SES::ReceiptRuleSet
+    Properties:
+      RuleSetName: !Sub 'email-receive-ruleset-${AWS::AccountId}'
+
+
+  MoveScopusEmailsToS3BucketRule:
+    Type: AWS::SES::ReceiptRule
+    Properties:
+      RuleSetName: !Sub 'email-receive-ruleset-${AWS::AccountId}'
+      Rule:
+        Name: !Sub 'scopus-email-rule-${AWS::AccountId}'
+        Recipients:
+          - !Sub 'scopus@${CustomDomain}'
+        Enabled: true
+        ScanEnabled: true # when we get ip-address for
+        Actions:
+          - S3Action:
+              BucketName: !Ref ScopusEmailBucket
