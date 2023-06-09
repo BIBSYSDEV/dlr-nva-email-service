@@ -165,6 +165,8 @@ Resources:
             Action:
               - s3:PutObject
             Resource: "*"
+            Principal:
+              Service: "ses.amazonaws.com"
             Condition:
               StringEquals:
                 'AWS:SourceAccount': !Ref AWS::AccountId
