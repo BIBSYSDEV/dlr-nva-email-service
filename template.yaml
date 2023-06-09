@@ -153,11 +153,6 @@ Resources:
 #          Cidr: 0.0.0.0/0
 #          Policy: Block
 
-  ReceiveEmailRuleSet:
-    Type: AWS::SES::ReceiptRuleSet
-    Properties:
-      RuleSetName: !Sub 'email-receive-ruleset-${AWS::AccountId}'
-
 
   MoveScopusEmailsToS3BucketRule:
     Type: AWS::SES::ReceiptRule
