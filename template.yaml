@@ -153,6 +153,24 @@ Resources:
 #          Cidr: 0.0.0.0/0
 #          Policy: Block
 
+  AllowSesToPutToS3:
+    Type: AWS::S3::BucketPolicy
+    DependsOn: ScopusEmailBucket
+    Properties:
+      Bucket: !Ref ScopusEmailBucket
+      PolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Action:
+              - s3:PutObject
+            Resource: "*"
+            Condition:
+              StringEquals:
+                'AWS:SourceAccount': !Ref AWS::AccountId
+                'AWS:AWS:SourceArn': !GetAtt MoveScopusEmailsToS3BucketRule.Arn
+
+
 
   MoveScopusEmailsToS3BucketRule:
     Type: AWS::SES::ReceiptRule
