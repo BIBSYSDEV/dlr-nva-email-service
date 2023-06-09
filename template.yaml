@@ -23,7 +23,7 @@ Parameters:
   ScopusEmailBucketName:
     Type: String
     Description: Name of the bucket that receives the scopus emails
-    Default: Scopus-emails
+    Default: scopus-emails
 
 Globals:
   Function:
