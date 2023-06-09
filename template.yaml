@@ -161,6 +161,7 @@ Resources:
 
   MoveScopusEmailsToS3BucketRule:
     Type: AWS::SES::ReceiptRule
+    DependsOn: ScopusEmailBucket
     Properties:
       RuleSetName: !Sub 'email-receive-ruleset-${AWS::AccountId}'
       Rule:
@@ -171,4 +172,4 @@ Resources:
         ScanEnabled: true # when we get ip-address for
         Actions:
           - S3Action:
-              BucketName: !Ref ScopusEmailBucket
+              BucketName: !Sub "${ScopusEmailBucketName}-${AWS::AccountId}"
