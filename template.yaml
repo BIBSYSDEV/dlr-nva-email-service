@@ -164,7 +164,7 @@ Resources:
           - Effect: Allow
             Action:
               - s3:PutObject
-            Resource: "*"
+            Resource: !Sub "arn:aws:s3:::scopus-emails-${AWS::AccountId}/*",
             Principal:
               Service: "ses.amazonaws.com"
             Condition:
