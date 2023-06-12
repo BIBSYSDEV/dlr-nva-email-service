@@ -171,14 +171,19 @@ Resources:
               StringEquals:
                 'AWS:SourceAccount': !Ref AWS::AccountId
 
+  ScopusEmailRuleSet:
+    Type: AWS::SES::ReceiptRuleSet
+    Properties:
+      RuleSetName: !Sub 'email-receive-ruleset-${AWS::AccountId}'
 
   MoveScopusEmailsToS3BucketRule:
     Type: AWS::SES::ReceiptRule
     DependsOn:
       - ScopusEmailBucket
       - AllowSesToPutToS3
+      - ScopusEmailRuleSet
     Properties:
-      RuleSetName: !Sub 'email-receive-ruleset-${AWS::AccountId}'
+      RuleSetName: !Ref ScopusEmailRuleSet
       Rule:
         Name: !Sub 'scopus-email-rule-${AWS::AccountId}'
         Recipients:
