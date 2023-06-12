@@ -170,8 +170,6 @@ Resources:
             Condition:
               StringEquals:
                 'AWS:SourceAccount': !Ref AWS::AccountId
-                'AWS:AWS:SourceArn': !Sub "arn:aws:ses:region:${AccountId}:receipt-rule-set/rule_set_name:email-receive-ruleset-${AWS::AccountId}/scopus-email-rule-${AWS::AccountId}"
-
 
 
   MoveScopusEmailsToS3BucketRule:
