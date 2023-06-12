@@ -174,7 +174,9 @@ Resources:
 
   MoveScopusEmailsToS3BucketRule:
     Type: AWS::SES::ReceiptRule
-    DependsOn: ScopusEmailBucket
+    DependsOn:
+      - ScopusEmailBucket
+      - AllowSesToPutToS3
     Properties:
       RuleSetName: !Sub 'email-receive-ruleset-${AWS::AccountId}'
       Rule:
