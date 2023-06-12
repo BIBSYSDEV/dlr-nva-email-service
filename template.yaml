@@ -126,7 +126,7 @@ Resources:
       FeedbackAttributes:
         EmailForwardingEnabled: true
 
-  ScopusImportEmailReceiver:
+  ScopusBImportEmailReceiver:
     Type: AWS::SES::EmailIdentity
     Properties:
       EmailIdentity: !Sub 'scopus@${CustomDomain}'
