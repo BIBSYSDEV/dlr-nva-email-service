@@ -129,10 +129,6 @@ Resources:
   ScopusImportEmailReceiver:
     Type: AWS::SES::EmailIdentity
     Properties:
-      DkimAttributes:
-        SigningEnabled: true
-      DkimSigningAttributes:
-        NextSigningKeyLength: 'RSA_2048_BIT'
       EmailIdentity: !Sub 'scopus@${CustomDomain}'
 
 #  AllowSiktEmailsToBeReceived:
