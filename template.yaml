@@ -29,7 +29,7 @@ Globals:
   Function:
     Timeout: 900
     MemorySize: 1798
-    Runtime: java11
+    Runtime: java17
 
 Resources:
   DlrNvaEmailServiceRole:
@@ -84,7 +84,7 @@ Resources:
       CodeUri: email-service
       Handler: no.sikt.nva.email.EmailRequestHandler::handleRequest
       Role: !GetAtt DlrNvaEmailServiceRole.Arn
-      Runtime: java11
+      Runtime: java17
       MemorySize: 1798
       Environment:
         Variables:
