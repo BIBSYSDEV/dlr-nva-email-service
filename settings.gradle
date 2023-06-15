@@ -2,3 +2,5 @@ enableFeaturePreview('VERSION_CATALOGS')
 
 rootProject.name = 'dlr-nva-email-service'
 include 'email-service'
+include 'email-reader'
+

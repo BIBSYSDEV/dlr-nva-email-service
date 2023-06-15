@@ -1,0 +1,5 @@
+
+dependencies {
+    implementation libs.nva.s3
+    implementation libs.aws.sdk2.s3
+}

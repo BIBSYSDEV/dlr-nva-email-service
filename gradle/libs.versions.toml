@@ -1,5 +1,5 @@
 [versions]
-nva = "1.24.18"
+nva = "1.29.1"
 hamcrest = '2.2'
 junit5 = '5.8.2'
 mockito = '4.5.1'
@@ -7,14 +7,18 @@ log4j = '2.17.1'
 slf4j = '1.8.0-beta4'
 awslog4j2 = '1.5.1'
 awsSesSDk = '1.12.254'
+awsSdk2 = { strictly = '2.20.60' }
 
 [libraries]
 nva-core = { group = "com.github.bibsysdev", name = "core", version.ref = "nva" }
 nva-apigateway = { group = "com.github.bibsysdev", name = "apigateway", version.ref = "nva" }
 nva-logutils = { group = "com.github.bibsysdev", name = "logutils", version.ref = "nva" }
 nva-testutils = { group = "com.github.bibsysdev", name = "nvatestutils", version.ref = "nva" }
+nva-s3 = { group = 'com.github.bibsysdev', name = 's3', version.ref = 'nva' }
 
 aws-ses = {group = 'com.amazonaws', name = 'aws-java-sdk-ses', version.ref = 'awsSesSDk'}
+
+aws-sdk2-s3 = { group = 'software.amazon.awssdk', name = 's3', version.ref = 'awsSdk2' }
 
 mockito-core = { group = 'org.mockito', name = 'mockito-core', version.ref = 'mockito' }
 hamcrest-base = { group = 'org.hamcrest', name = 'hamcrest', version.ref = 'hamcrest' }
