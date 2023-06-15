@@ -10,6 +10,11 @@ dependencies {
     testImplementation libs.nva.testutils
 }
 
+
+sourceCompatibility = JavaVersion.VERSION_17  // source-code version and must be <= targetCompatibility
+targetCompatibility = JavaVersion.VERSION_17 // bytecode target version
+
+
 test{
     environment "DEFAULT_FROM_ADDRESS", "no-reply@sandbox.nva.aws.unit.no"
 }
