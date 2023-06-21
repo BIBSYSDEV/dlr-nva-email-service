@@ -140,15 +140,6 @@ Resources:
           Cidr: 40.107.20.62 # TODO: get IP range for SIKT email and not hardcode email ip from the one time we received email.
           Policy: Allow
 
-  DropAllEmailsFromUnknownIps:
-    Type: AWS::SES::ReceiptFilter
-    Properties:
-      Filter:
-        Name: 'block-everything'
-        IpFilter:
-          Cidr: 0.0.0.0/0
-          Policy: Block
-
   AllowSesToPutToS3:
     Type: AWS::S3::BucketPolicy
     DependsOn: ScopusEmailBucket
