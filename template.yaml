@@ -131,15 +131,6 @@ Resources:
     Properties:
       EmailIdentity: !Sub 'scopus@${CustomDomain}'
 
-  AllowSiktEmailsToBeReceived:
-    Type: AWS::SES::ReceiptFilter
-    Properties:
-      Filter:
-        Name: 'allow-sikt-emails'
-        IpFilter:
-          Cidr: 40.107.20.62 # TODO: get IP range for SIKT email and not hardcode email ip from the one time we received email.
-          Policy: Allow
-
   AllowSesToPutToS3:
     Type: AWS::S3::BucketPolicy
     DependsOn: ScopusEmailBucket
