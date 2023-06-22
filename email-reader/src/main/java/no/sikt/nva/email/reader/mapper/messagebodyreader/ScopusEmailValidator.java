@@ -42,7 +42,7 @@ public class ScopusEmailValidator {
                 .orElse(true);
     }
 
-    private boolean hasExpectedValue(Field spfHeader) {
+    private boolean hasSpfHeaderFromSikt(Field spfHeader) {
         var pattern = Pattern.compile(SPF_CHECK);
         var matcher = pattern.matcher(spfHeader.getBody());
         return matcher.find();
@@ -62,7 +62,7 @@ public class ScopusEmailValidator {
 
     private boolean invalidReceivedSpfHeader(Message email) {
         var spfHeaders = email.getHeader().getFields(RECEIVED_SPF_HEADER);
-        return spfHeaders.stream().noneMatch(this::hasExpectedValue);
+        return spfHeaders.stream().noneMatch(this::hasSpfHeaderFromSikt);
     }
 
 }

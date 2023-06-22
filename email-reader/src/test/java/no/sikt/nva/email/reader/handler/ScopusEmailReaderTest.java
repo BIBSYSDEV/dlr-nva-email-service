@@ -48,6 +48,9 @@ public class ScopusEmailReaderTest {
     private static final S3EventNotification.UserIdentityEntity EMPTY_USER_IDENTITY = null;
     private static final S3EventNotification.RequestParametersEntity EMPTY_REQUEST_PARAMETERS = null;
     private static final S3EventNotification.ResponseElementsEntity EMPTY_RESPONSE_ELEMENTS = null;
+    private static final String CITED_BY_URL = "https://sccontent-scudd-delivery-prod.s3.amazonaws.com/sccontent-scudd-delivery-prod/some_path/2023-6-14/2023-6-14_ANI-CITEDBY.zip?my-query-param=should-be-preserved";
+    private static final String FULL_ABSTRACTS = "https://sccontent-scudd-delivery-prod.s3.amazonaws.com/sccontent-scudd-delivery-prod/some_path/2023-6-14/2023-6-14_ANI-ITEM-full-format-xml.zip?my-query-param=should-be-preserved";
+    private static final String DELETE_LIST = "https://sccontent-scudd-delivery-prod.s3.amazonaws.com/sccontent-scudd-delivery-prod/some_path/2023-6-14/2023-6-14_ANI-ITEM-delete.zip?my-query-param=should-be-preserved";
     private S3Driver s3Driver;
     private FakeS3Client s3Client;
 
@@ -90,28 +93,21 @@ public class ScopusEmailReaderTest {
 
     @Test
     void shouldThrowExceptionIfEmailDoesNotHaveContentTypeMultipart() throws IOException, MimeException {
-        var s3EventNotFromSikt = createS3Event(EmailGenerator.generateNonMultipartEmail());
-        var exception = assertThrows(EmailException.class, () -> handler.handleRequest(s3EventNotFromSikt, CONTEXT));
+        var s3Event = createS3Event(EmailGenerator.generateNonMultipartEmail());
+        var exception = assertThrows(EmailException.class, () -> handler.handleRequest(s3Event, CONTEXT));
         assertThat(exception.getMessage(), containsString(COULD_NOT_PARSE_EMAIL));
-        assertThat(exception.getObjectKey(), is(equalTo(extractObjectKey(s3EventNotFromSikt))));
+        assertThat(exception.getObjectKey(), is(equalTo(extractObjectKey(s3Event))));
         assertThat(exception.getBucket(), is(equalTo(INPUT_BUCKET_NAME)));
     }
 
 
     @Test
     void shouldThrowExceptionIfEmailDoesNotContainBodyWithURI() throws IOException, MimeException {
-        var s3EventNotFromSikt = createS3Event(EmailGenerator.generateEmailWithoutScopusLinks());
-        var exception = assertThrows(EmailException.class, () -> handler.handleRequest(s3EventNotFromSikt, CONTEXT));
+        var s3Event = createS3Event(EmailGenerator.generateEmailWithoutScopusLinks());
+        var exception = assertThrows(EmailException.class, () -> handler.handleRequest(s3Event, CONTEXT));
         assertThat(exception.getMessage(), containsString(NO_URL_PRESENT_IN_MESSAGE));
-        assertThat(exception.getObjectKey(), is(equalTo(extractObjectKey(s3EventNotFromSikt))));
+        assertThat(exception.getObjectKey(), is(equalTo(extractObjectKey(s3Event))));
         assertThat(exception.getBucket(), is(equalTo(INPUT_BUCKET_NAME)));
-    }
-
-    @Test
-    void shouldNotDownloadCitedByUri() throws IOException {
-        var s3EventNotFromSikt = createS3Event(validEmail);
-        var actualUrl = handler.handleRequest(s3EventNotFromSikt, CONTEXT);
-        assertThat(actualUrl, not(contains(UriWrapper.fromUri("https://sccontent-scudd-delivery-prod.s3.amazonaws.com/sccontent-scudd-delivery-prod/cristin_1/2023-6-14/cristin_1_2023-6-14_ANI-CITEDBY.zip?my-query-param=should-be-preserved").getUri())));
     }
 
     //TODO: implement download feature.
@@ -127,20 +123,21 @@ public class ScopusEmailReaderTest {
 
     @Test
     void shouldReturnASetOfDownloadsURIWhenTheEmailContainsTheURI() throws IOException {
-        var s3EventNotFromSikt = createS3Event(validEmail);
-        var actualUrl = handler.handleRequest(s3EventNotFromSikt, CONTEXT);
+        var s3Event = createS3Event(validEmail);
+        var actualUrl = handler.handleRequest(s3Event, CONTEXT);
         var expectedUrls = urlsInValidEmailTxt();
         assertThat(actualUrl, containsInAnyOrder(expectedUrls.toArray()));
+        assertThat(actualUrl, not(contains(UriWrapper.fromUri(CITED_BY_URL).getUri())));
     }
 
     private Set<URI> urlsInValidEmailTxt() {
-        return Set.of(UriWrapper.fromUri("https://sccontent-scudd-delivery-prod.s3.amazonaws.com/sccontent-scudd-delivery-prod/cristin_1/2023-6-14/cristin_1_2023-6-14_ANI-ITEM-full-format-xml.zip?my-query-param=should-be-preserved").getUri(),
-                UriWrapper.fromUri("https://sccontent-scudd-delivery-prod.s3.amazonaws.com/sccontent-scudd-delivery-prod/cristin_1/2023-6-14/cristin_1_2023-6-14_ANI-ITEM-delete.zip?my-query-param=should-be-preserved").getUri());
+        return Set.of(UriWrapper.fromUri(FULL_ABSTRACTS).getUri(),
+                UriWrapper.fromUri(DELETE_LIST).getUri());
     }
 
 
     private URI insertFileToS3(String fileContent) throws IOException {
-        return s3Driver.insertFile(UnixPath.of("lpcgajc9s3sl1ne93ro0m7hoqgqo3d3fvrom2no1"), fileContent);
+        return s3Driver.insertFile(UnixPath.of("somepath"), fileContent);
     }
 
     private S3Event createS3Event(String content) throws IOException {
