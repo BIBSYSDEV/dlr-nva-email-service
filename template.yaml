@@ -24,6 +24,10 @@ Parameters:
     Type: String
     Description: Name of the bucket that receives the scopus emails
     Default: scopus-emails
+  ScopusZipBucketName:
+    Type: String
+    Description: Name of the bucket that receives the scopus-zip files. It is created in the nva-publication stack
+    Default: "scopus-zip-files-v2"
 
 Globals:
   Function:
@@ -63,6 +67,40 @@ Resources:
                   - ses:SendRawEmail
                 Resource: "*"
 
+  DefaultLambdaRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: [ lambda.amazonaws.com ]
+            Action: [ 'sts:AssumeRole' ]
+      Policies:
+        - PolicyName: writeLog
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:*:*'
+        - PolicyName: sendMail
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:GetObject
+                  - s3:ListBucket
+                  - s3:ListBucketMultipartUploads
+                  - s3:PutObject
+                  - s3:PutObjectAcl
+                Resource: "*"
+
   EmailGatewayAPI:
     Type: AWS::Serverless::Api
     Properties:
@@ -98,6 +136,23 @@ Resources:
             Method: post
             Path: /email
 
+  ReadScopusEmailFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: email-reader
+      Handler: no.sikt.nva.email.reader.handler.ScopusEmailReader::handleRequest
+      Role: !GetAtt DefaultLambdaRole.Arn
+      ReservedConcurrentExecutions: 1
+      Environment:
+        Variables:
+          SCOPUS_ZIP_BUCKET: !Sub "${ScopusZipBucketName}-${AWS::AccountId}"
+      Events:
+        Scopus:
+          Type: S3
+          Properties:
+            Bucket: !Ref ScopusEmailBucket
+            Events: 's3:ObjectCreated:*'
+
   EmailServiceBasePathMapping:
     Type: AWS::ApiGateway::BasePathMapping
     Properties:
@@ -113,8 +168,8 @@ Resources:
       BucketName: !Sub "${ScopusEmailBucketName}-${AWS::AccountId}"
 
 
-# Set up automatically verified from_address domain: This will only work for Route 53 domains.
-# Non route 53 domains needs manually updating certificates.
+  # Set up automatically verified from_address domain: This will only work for Route 53 domains.
+  # Non route 53 domains needs manually updating certificates.
   VerifiedFromSenderForSimpleEmail:
     Type: AWS::SES::EmailIdentity
     Properties:
@@ -130,15 +185,6 @@ Resources:
     Type: AWS::SES::EmailIdentity
     Properties:
       EmailIdentity: !Sub 'scopus@${CustomDomain}'
-
-  AllowSiktEmailsToBeReceived:
-    Type: AWS::SES::ReceiptFilter
-    Properties:
-      Filter:
-        Name: 'allow-sikt-emails'
-        IpFilter:
-          Cidr: 40.107.20.62 # TODO: get IP range for SIKT email and not hardcode email ip from the one time we received email.
-          Policy: Allow
 
   AllowSesToPutToS3:
     Type: AWS::S3::BucketPolicy
