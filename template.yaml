@@ -142,6 +142,7 @@ Resources:
       CodeUri: email-reader
       Handler: no.sikt.nva.email.reader.handler.ScopusEmailReader::handleRequest
       Role: !GetAtt DefaultLambdaRole.Arn
+      MemorySize: 8192
       ReservedConcurrentExecutions: 1
       Environment:
         Variables:
