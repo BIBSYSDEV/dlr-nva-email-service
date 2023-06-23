@@ -13,6 +13,12 @@ public class EmailException extends RuntimeException {
         this.objectKey = objectKey;
     }
 
+    public EmailException(String message, String bucket, String objectKey, Throwable throwable) {
+        super(message, throwable);
+        this.bucket = bucket;
+        this.objectKey = objectKey;
+    }
+
     public String getBucket() {
         return bucket;
     }

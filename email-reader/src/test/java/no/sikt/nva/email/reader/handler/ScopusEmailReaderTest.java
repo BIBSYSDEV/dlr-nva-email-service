@@ -5,9 +5,11 @@ import com.amazonaws.services.lambda.runtime.events.S3Event;
 import com.amazonaws.services.lambda.runtime.events.models.s3.S3EventNotification;
 import no.sikt.nva.email.reader.model.exception.EmailException;
 import no.sikt.nva.email.reader.util.EmailGenerator;
+import no.sikt.nva.email.reader.util.FakeS3ClientThrowingExceptionWhenInsertingZipFile;
+import no.sikt.nva.email.reader.util.FakeZipFileRetriever;
+import no.sikt.nva.email.reader.util.FakeZipFileRetrieverThrowingException;
 import no.unit.nva.s3.S3Driver;
 import no.unit.nva.stubs.FakeS3Client;
-import no.unit.nva.stubs.WiremockHttpClient;
 import nva.commons.core.paths.UnixPath;
 import nva.commons.core.paths.UriWrapper;
 import org.apache.james.mime4j.MimeException;
@@ -24,17 +26,19 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
-
+import static no.sikt.nva.email.reader.handler.ScopusEmailReader.COULD_NOT_PERSIST_FILE_IN_S_3_BUCKET;
+import static no.sikt.nva.email.reader.handler.ScopusEmailReader.UNABLE_TO_DOWNLOAD_FILE;
 import static no.sikt.nva.email.reader.mapper.messagebodyreader.MultipartReader.NO_URL_PRESENT_IN_MESSAGE;
 import static no.sikt.nva.email.reader.mapper.messagebodyreader.ScopusEmailValidator.COULD_NOT_PARSE_EMAIL;
 import static no.sikt.nva.email.reader.mapper.messagebodyreader.ScopusEmailValidator.COULD_NOT_VERIFY_EMAIL;
 import static no.unit.nva.testutils.RandomDataGenerator.randomString;
 import static org.hamcrest.MatcherAssert.assertThat;
-
+import static org.hamcrest.Matchers.allOf;
 import static org.hamcrest.Matchers.contains;
 import static org.hamcrest.Matchers.containsInAnyOrder;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.equalTo;
+import static org.hamcrest.Matchers.hasItem;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -48,9 +52,10 @@ public class ScopusEmailReaderTest {
     private static final S3EventNotification.UserIdentityEntity EMPTY_USER_IDENTITY = null;
     private static final S3EventNotification.RequestParametersEntity EMPTY_REQUEST_PARAMETERS = null;
     private static final S3EventNotification.ResponseElementsEntity EMPTY_RESPONSE_ELEMENTS = null;
-    private static final String CITED_BY_URL = "https://sccontent-scudd-delivery-prod.s3.amazonaws.com/sccontent-scudd-delivery-prod/some_path/2023-6-14/2023-6-14_ANI-CITEDBY.zip?my-query-param=should-be-preserved";
-    private static final String FULL_ABSTRACTS = "https://sccontent-scudd-delivery-prod.s3.amazonaws.com/sccontent-scudd-delivery-prod/some_path/2023-6-14/2023-6-14_ANI-ITEM-full-format-xml.zip?my-query-param=should-be-preserved";
-    private static final String DELETE_LIST = "https://sccontent-scudd-delivery-prod.s3.amazonaws.com/sccontent-scudd-delivery-prod/some_path/2023-6-14/2023-6-14_ANI-ITEM-delete.zip?my-query-param=should-be-preserved";
+    private static final String CITED_BY_URL = "s3://some-bucket/2023-6-14_ANI-CITEDBY.zip";
+    private static final String FULL_ABSTRACTS = "s3://some-bucket/2023-6-14_ANI-ITEM-full-format-xml.zip";
+    private static final String DELETE_LIST = "s3://some-bucket/2023-6-14_ANI-ITEM-delete.zip";
+    private static final String SCOPUS_ZIP_BUCKET = "some-bucket";
     private S3Driver s3Driver;
     private FakeS3Client s3Client;
 
@@ -67,7 +72,7 @@ public class ScopusEmailReaderTest {
     void init() throws MimeException, IOException {
         s3Client = new FakeS3Client();
         s3Driver = new S3Driver(s3Client, INPUT_BUCKET_NAME);
-        handler = new ScopusEmailReader(s3Client, WiremockHttpClient.create());
+        handler = new ScopusEmailReader(s3Client, new FakeZipFileRetriever(), SCOPUS_ZIP_BUCKET);
         validEmail = EmailGenerator.generateValidEmail();
     }
 
@@ -110,24 +115,41 @@ public class ScopusEmailReaderTest {
         assertThat(exception.getBucket(), is(equalTo(INPUT_BUCKET_NAME)));
     }
 
-    //TODO: implement download feature.
-//    @Test
-//    void shouldThrowExceptionIfTheURIsInTheEmailIsNotDownloadable() throws IOException {
-//        var s3EventNotFromSikt = createS3Event(validEmail);
-//        var exception = assertThrows(EmailException.class, () -> handler.handleRequest(s3EventNotFromSikt, CONTEXT));
-//        assertThat(exception.getMessage(), containsString(NO_URL_PRESENT_IN_MESSAGE));
-//        assertThat(exception.getObjectKey(), is(equalTo(extractObjectKey(s3EventNotFromSikt))));
-//        assertThat(exception.getBucket(), is(equalTo(INPUT_BUCKET_NAME)));
-//
-//    }
+    @Test
+    void shouldThrowExceptionIfTheURIsInTheEmailIsNotDownloadable() throws IOException {
+        var s3EventNotFromSikt = createS3Event(validEmail);
+        handler = new ScopusEmailReader(s3Client, new FakeZipFileRetrieverThrowingException(), SCOPUS_ZIP_BUCKET);
+        var exception = assertThrows(EmailException.class, () -> handler.handleRequest(s3EventNotFromSikt, CONTEXT));
+        assertThat(exception.getMessage(), containsString(UNABLE_TO_DOWNLOAD_FILE));
+        assertThat(exception.getObjectKey(), is(equalTo(extractObjectKey(s3EventNotFromSikt))));
+        assertThat(exception.getBucket(), is(equalTo(INPUT_BUCKET_NAME)));
+    }
 
     @Test
-    void shouldReturnASetOfDownloadsURIWhenTheEmailContainsTheURI() throws IOException {
+    void shouldReturnASetOfDownloadsUriWhenTheEmailContainsTheUri() throws IOException {
         var s3Event = createS3Event(validEmail);
         var actualUrl = handler.handleRequest(s3Event, CONTEXT);
         var expectedUrls = urlsInValidEmailTxt();
         assertThat(actualUrl, containsInAnyOrder(expectedUrls.toArray()));
         assertThat(actualUrl, not(contains(UriWrapper.fromUri(CITED_BY_URL).getUri())));
+
+        //verify the files are in the s3 driver
+        var driver = new S3Driver(s3Client, SCOPUS_ZIP_BUCKET);
+        var actualFilesInS3 = driver.listFiles(UnixPath.EMPTY_PATH, null, 1000);
+        assertThat(actualFilesInS3.getFiles(), allOf( hasItem(UnixPath.of("2023-6-14_ANI-ITEM-full-format-xml.zip")),
+                hasItem(UnixPath.of("2023-6-14_ANI-ITEM-full-format-xml.zip"))));
+    }
+
+    @Test
+    void shouldThrowExceptionWhenTheLambdaFailsToPersistTheZipFile() throws IOException {
+        s3Client = new FakeS3ClientThrowingExceptionWhenInsertingZipFile();
+        s3Driver = new S3Driver(s3Client, INPUT_BUCKET_NAME);
+        var s3Event = createS3Event(validEmail);
+        handler = new ScopusEmailReader(s3Client, new FakeZipFileRetriever(), SCOPUS_ZIP_BUCKET);
+        var exception = assertThrows(EmailException.class, () -> handler.handleRequest(s3Event, CONTEXT));
+        assertThat(exception.getMessage(), containsString(COULD_NOT_PERSIST_FILE_IN_S_3_BUCKET));
+        assertThat(exception.getObjectKey(), is(equalTo(extractObjectKey(s3Event))));
+        assertThat(exception.getBucket(), is(equalTo(INPUT_BUCKET_NAME)));
     }
 
     private Set<URI> urlsInValidEmailTxt() {

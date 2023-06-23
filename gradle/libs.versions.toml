@@ -16,6 +16,7 @@ resilience4jRetry = '2.0.2'
 
 [libraries]
 nva-core = { group = "com.github.bibsysdev", name = "core", version.ref = "nva" }
+nva-identifiers = {group = 'com.github.bibsysdev', name = 'identifiers', version.ref = 'nva'}
 nva-apigateway = { group = "com.github.bibsysdev", name = "apigateway", version.ref = "nva" }
 nva-logutils = { group = "com.github.bibsysdev", name = "logutils", version.ref = "nva" }
 nva-testutils = { group = "com.github.bibsysdev", name = "nvatestutils", version.ref = "nva" }
