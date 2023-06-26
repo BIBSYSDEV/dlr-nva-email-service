@@ -56,18 +56,23 @@ public class ScopusEmailReader implements RequestHandler<S3Event, Set<URI>> {
         return Try.of(() -> getEmailFromS3(event))
                 .mapTry(email -> extractMessage(event, email))
                 .mapTry(message -> extractUrisFromMessage(event, message))
-                .mapTry(uriSet -> downloadZipFilesAndPersistThem(uriSet, event))
+                .mapTry(uriSet -> downloadToBucketStorage(uriSet, event))
                 .getOrElseThrow(throwable -> handleFailure(throwable, event));
     }
 
-    private Set<URI> downloadZipFilesAndPersistThem(Set<URI> uris, S3Event event) {
+    private Set<URI> downloadToBucketStorage(Set<URI> uris, S3Event event) {
         var s3Driver = new S3Driver(s3Client, scopusZipBucket);
-        return uris.stream().map(uri -> putOnS3(uri, s3Driver, event)).collect(Collectors.toSet());
+        return uris.stream().map(uri -> persistInBucket(uri, s3Driver, event)).collect(Collectors.toSet());
     }
 
-    private URI putOnS3(URI uri, S3Driver s3Driver, S3Event event) {
-        var objectKey = UnixPath.of(UriWrapper.fromUri(uri).getLastPathElement());
+    private URI persistInBucket(URI uri, S3Driver s3Driver, S3Event event) {
+        var objectKey = getFileNameFromURL(uri);
         return persistFilesToS3(fileRetriever.retrieveFile(uri), objectKey, s3Driver, event);
+    }
+
+    private static UnixPath getFileNameFromURL(URI uri) {
+        //The filename contains date and type of import (full abstract og delete list).
+        return UnixPath.of(UriWrapper.fromUri(uri).getLastPathElement());
     }
 
 
