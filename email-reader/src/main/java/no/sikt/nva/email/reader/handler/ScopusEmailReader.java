@@ -29,7 +29,7 @@ import java.util.stream.Collectors;
 public class ScopusEmailReader implements RequestHandler<S3Event, Set<URI>> {
 
 
-    public static final String UNABLE_TO_DOWNLOAD_FILE = "Unable to  download file";
+    public static final String UNABLE_TO_DOWNLOAD_FILE = "Unable to download file";
     public static final String COULD_NOT_PERSIST_FILE_IN_S_3_BUCKET = "Could not persist file in s3 bucket";
     private static final String S3_URI_TEMPLATE = "s3://%s/%s";
     private static final int SINGLE_EXPECTED_RECORD = 0;
