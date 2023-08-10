@@ -1,6 +1,7 @@
 package no.sikt.nva.email;
 
 import static nva.commons.core.attempt.Try.attempt;
+
 import com.amazonaws.regions.Regions;
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
@@ -11,7 +12,9 @@ import com.amazonaws.services.simpleemail.model.Destination;
 import com.amazonaws.services.simpleemail.model.Message;
 import com.amazonaws.services.simpleemail.model.SendEmailRequest;
 import com.amazonaws.services.simpleemail.model.SendEmailResult;
+
 import java.net.HttpURLConnection;
+
 import no.sikt.nva.email.model.EmailRequest;
 import nva.commons.apigateway.ApiGatewayHandler;
 import nva.commons.apigateway.RequestInfo;
@@ -43,12 +46,12 @@ public class EmailRequestHandler extends ApiGatewayHandler<EmailRequest, String>
     @JacocoGenerated
     public EmailRequestHandler() {
         this(AmazonSimpleEmailServiceClientBuilder.standard()
-                 .withRegion(Regions.EU_WEST_1).build(), new Environment());
+                .withRegion(Regions.EU_WEST_1).build(), new Environment());
     }
 
     @Override
     protected String processInput(EmailRequest emailRequest, RequestInfo requestInfo, Context context)
-        throws ApiGatewayException {
+            throws ApiGatewayException {
         var sendEmailResult = sendEmail(emailRequest);
         logger.info(String.format(EMAIL_LOG_INFO_TRACK_ID, sendEmailResult.getMessageId()));
         return SUCCESS_MESSAGE;
@@ -61,8 +64,8 @@ public class EmailRequestHandler extends ApiGatewayHandler<EmailRequest, String>
 
     private SendEmailResult sendEmail(EmailRequest emailRequest) throws EmailException {
         return attempt(() -> createSesEmailRequest(emailRequest))
-                   .map(amazonSimpleEmailService::sendEmail)
-                   .orElseThrow(this::logFailureAndThrowEmailException);
+                .map(amazonSimpleEmailService::sendEmail)
+                .orElseThrow(this::logFailureAndThrowEmailException);
     }
 
     @SuppressWarnings("PMD.InvalidLogMessageFormat")
@@ -73,36 +76,36 @@ public class EmailRequestHandler extends ApiGatewayHandler<EmailRequest, String>
 
     private SendEmailRequest createSesEmailRequest(EmailRequest emailRequest) {
         return new SendEmailRequest()
-                   .withDestination(getDestination(emailRequest))
-                   .withMessage(getMessage(emailRequest))
-                   .withSource(determineFromAddress(emailRequest));
+                .withDestination(getDestination(emailRequest))
+                .withMessage(getMessage(emailRequest))
+                .withSource(determineFromAddress(emailRequest));
     }
 
     private String determineFromAddress(EmailRequest emailRequest) {
-        return StringUtils.isNotBlank(emailRequest.getFromAddress()) ?
-                   emailRequest.getFromAddress()
-                   : defaultFromAddress;
+        return StringUtils.isNotBlank(emailRequest.getFromAddress())
+                ? emailRequest.getFromAddress()
+                : defaultFromAddress;
     }
 
     private Message getMessage(EmailRequest emailRequest) {
         return new Message()
-                   .withBody(new Body()
-                                 .withHtml(createContent(emailRequest.getTextHtml()))
-                                 .withText(createContent(emailRequest.getText())))
-                   .withSubject(createContent(emailRequest.getSubject()));
+                .withBody(new Body()
+                        .withHtml(createContent(emailRequest.getTextHtml()))
+                        .withText(createContent(emailRequest.getText())))
+                .withSubject(createContent(emailRequest.getSubject()));
     }
 
     private Content createContent(String data) {
         return new Content()
-                   .withCharset(UTF_8)
-                   .withData(
-                       data);
+                .withCharset(UTF_8)
+                .withData(
+                        data);
     }
 
     private Destination getDestination(EmailRequest emailRequest) {
         return new Destination()
-                   .withToAddresses(emailRequest.getToAddress())
-                   .withCcAddresses(emailRequest.getCc())
-                   .withBccAddresses(emailRequest.getBcc());
+                .withToAddresses(emailRequest.getToAddress())
+                .withCcAddresses(emailRequest.getCc())
+                .withBccAddresses(emailRequest.getBcc());
     }
 }

@@ -1,22 +1,16 @@
-plugins {
-    id 'dlr-nva-email-service.java-library-conventions'
+plugins{
+    id 'dlr.nva.email.service.rootplugin'
 }
 
-group 'no.unit.nva'
-version '1.0-SNAPSHOT'
+//workaround for jacoco-merge to work
+allprojects{
+    apply plugin: 'dlr.nva.email.service.java-conventions'
+}
 
-sourceCompatibility = JavaVersion.VERSION_17  // source-code version and must be <= targetCompatibility
-targetCompatibility = JavaVersion.VERSION_17 // bytecode target version
-
+tasks.withType(JavaCompile) {
+    options.release = 17
+}
 wrapper {
+    gradleVersion = '8.2.1'
     distributionType = Wrapper.DistributionType.ALL
-    gradleVersion = "7.4.2"
-}
-
-allprojects {
-    apply plugin: 'dlr-nva-email-service.java-library-conventions'
-}
-
-build {
-    dependsOn jacocoRootReport
 }

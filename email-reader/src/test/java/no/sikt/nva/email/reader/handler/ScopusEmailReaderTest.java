@@ -80,9 +80,11 @@ public class ScopusEmailReaderTest {
     @Test
     void shouldThrowExceptionIfItCannotParseTheEmail() throws IOException {
         var s3EventNotContainingAnEmail = createS3Event(randomString());
-        var exception = assertThrows(EmailException.class, () -> handler.handleRequest(s3EventNotContainingAnEmail, CONTEXT));
+        var exception = assertThrows(EmailException.class,
+                () -> handler.handleRequest(s3EventNotContainingAnEmail, CONTEXT));
         assertThat(exception.getMessage(), containsString(COULD_NOT_VERIFY_EMAIL));
-        assertThat(exception.getObjectKey(), is(equalTo(extractObjectKey(s3EventNotContainingAnEmail))));
+        assertThat(exception.getObjectKey(),
+                is(equalTo(extractObjectKey(s3EventNotContainingAnEmail))));
     }
 
 
@@ -134,7 +136,7 @@ public class ScopusEmailReaderTest {
         assertThat(actualUrl, not(contains(UriWrapper.fromUri(CITED_BY_URL).getUri())));
 
         //verify the files are in the s3 driver
-        var driver = new S3Driver(s3Client, SCOPUS_ZIP_BUCKET);
+        var driver = new S3Driver( s3Client, SCOPUS_ZIP_BUCKET);
         var actualFilesInS3 = driver.listFiles(UnixPath.EMPTY_PATH, null, 1000);
         assertThat(actualFilesInS3.getFiles(), allOf( hasItem(UnixPath.of("2023-6-14_ANI-ITEM-full-format-xml.zip")),
                 hasItem(UnixPath.of("2023-6-14_ANI-ITEM-full-format-xml.zip"))));
