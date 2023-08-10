@@ -136,9 +136,9 @@ public class ScopusEmailReaderTest {
         assertThat(actualUrl, not(contains(UriWrapper.fromUri(CITED_BY_URL).getUri())));
 
         //verify the files are in the s3 driver
-        var driver = new S3Driver( s3Client, SCOPUS_ZIP_BUCKET);
+        var driver = new S3Driver(s3Client, SCOPUS_ZIP_BUCKET);
         var actualFilesInS3 = driver.listFiles(UnixPath.EMPTY_PATH, null, 1000);
-        assertThat(actualFilesInS3.getFiles(), allOf( hasItem(UnixPath.of("2023-6-14_ANI-ITEM-full-format-xml.zip")),
+        assertThat(actualFilesInS3.getFiles(), allOf(hasItem(UnixPath.of("2023-6-14_ANI-ITEM-full-format-xml.zip")),
                 hasItem(UnixPath.of("2023-6-14_ANI-ITEM-full-format-xml.zip"))));
     }
 
