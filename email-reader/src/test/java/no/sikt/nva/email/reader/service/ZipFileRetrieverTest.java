@@ -44,7 +44,8 @@ public class ZipFileRetrieverTest {
 
 
     @SuppressWarnings("unchecked")
-    private void mockResponseThatFailsTheFirstTimeButReturnsSuccessTheSecondTime(URI url) throws IOException, InterruptedException {
+    private void mockResponseThatFailsTheFirstTimeButReturnsSuccessTheSecondTime(URI url)
+            throws IOException, InterruptedException {
         when(httpClient.send(any(), any()))
                 .thenReturn(badResponse)
                 .thenReturn(okResponse);
