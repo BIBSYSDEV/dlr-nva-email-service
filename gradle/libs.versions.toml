@@ -11,7 +11,7 @@ awsSdk2 = { strictly = '2.20.60' }
 awsLambdaCore = { strictly = '1.2.2' }
 awsLambdaEvents = { strictly = '3.11.1' }
 mime4j = { strictly = '0.8.9' }
-vavrVersion = '0.10.2'
+vavrVersion = '0.10.4'
 resilience4jRetry = '2.0.2'
 
 [libraries]
