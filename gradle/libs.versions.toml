@@ -6,7 +6,7 @@ mockito = '4.5.1'
 log4j = '2.17.1'
 slf4j = '1.8.0-beta4'
 awslog4j2 = '1.5.1'
-awsSesSDk = '1.12.254'
+awsSesSDk = '1.12.581'
 awsSdk2 = { strictly = '2.20.60' }
 awsLambdaCore = { strictly = '1.2.2' }
 awsLambdaEvents = { strictly = '3.11.1' }
