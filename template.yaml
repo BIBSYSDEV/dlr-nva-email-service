@@ -271,6 +271,6 @@ Resources:
       Period: 28800
       EvaluationPeriods: 1
       Threshold: 1
-      ComparisonOperator: GreaterThanOrEqualToThreshold
+      ComparisonOperator: GreaterThanThreshold
       AlarmActions:
         - !Ref SlackSnsArn
