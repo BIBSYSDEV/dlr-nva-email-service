@@ -1,16 +1,10 @@
 package no.sikt.nva.email.reader.handler;
 
-import static no.sikt.nva.email.reader.handler.VerifyScopusEmailReceivedHandler.ALARM_MESSAGE;
-import static no.sikt.nva.email.reader.handler.VerifyScopusEmailReceivedHandler.ALARM_SUBJECT;
 import static no.unit.nva.testutils.RandomDataGenerator.randomString;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
-import static org.hamcrest.Matchers.samePropertyValuesAs;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import com.amazonaws.services.lambda.runtime.events.ScheduledEvent;
 import java.io.IOException;
@@ -18,6 +12,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import no.sikt.nva.email.reader.model.exception.NoScopusEmailsReceived;
 import no.sikt.nva.email.reader.util.EmailGenerator;
 import no.unit.nva.stubs.FakeContext;
 import nva.commons.core.ioutils.IoUtils;
@@ -34,18 +29,10 @@ import software.amazon.awssdk.services.s3.model.GetObjectResponse;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Response;
 import software.amazon.awssdk.services.s3.model.S3Object;
-import software.amazon.awssdk.services.sns.SnsAsyncClient;
-import software.amazon.awssdk.services.sns.model.PublishRequest;
 
 public class VerifyScopusEmailReceivedHandlerTest {
 
     private static final String OBJECT_KEY = "someObjectKey";
-    private static final String SNS_TOPIC_ARN = "someSnsTopicArn";
-    private static final PublishRequest ALARM_PUBLISHED = PublishRequest.builder()
-                                                              .topicArn(SNS_TOPIC_ARN)
-                                                              .message(ALARM_MESSAGE)
-                                                              .subject(ALARM_SUBJECT)
-                                                              .build();
     private final String BUCKET_NAME = "someBucketName";
 
     private final FakeContext context = new FakeContext() {
@@ -57,35 +44,26 @@ public class VerifyScopusEmailReceivedHandlerTest {
     private final ScheduledEvent SCHEDULED_EVENT = new ScheduledEvent();
     private S3Client s3Client;
     private VerifyScopusEmailReceivedHandler handler;
-    private SnsAsyncClient snsAsyncClient;
 
     @BeforeEach
     void init() {
         //Because lastModifiedFlag in listObject response is needed, the FaceS3Client is not usable
         s3Client = mock(S3Client.class);
-        snsAsyncClient = mock(SnsAsyncClient.class);
         handler = new VerifyScopusEmailReceivedHandler(s3Client,
-                                                       snsAsyncClient,
-                                                       BUCKET_NAME,
-                                                       SNS_TOPIC_ARN);
+                                                       BUCKET_NAME);
     }
 
     @Test
     void shouldEmitEventWhenThereIsNoObjectYoungerThan24hours() {
         stubObjectKeyListResponse(createOldS3Object());
-        var alarm = handler.handleRequest(SCHEDULED_EVENT, context);
-        assertThat(alarm, samePropertyValuesAs((ALARM_PUBLISHED)));
-        verify(snsAsyncClient, times(1)).publish(any(PublishRequest.class));
+        assertThrows(NoScopusEmailsReceived.class, () -> handler.handleRequest(SCHEDULED_EVENT, context));
     }
 
     @Test
     void shouldEmitEventWhenThereIsNoScopusEmailObjectInBucket() {
         stubObjectKeyListResponse(freshObject());
         stubs3Content(randomString());
-        var alarm = handler.handleRequest(SCHEDULED_EVENT, context);
-        assertThat(alarm, samePropertyValuesAs(ALARM_PUBLISHED));
-        verify(snsAsyncClient, times(1)).publish(any(PublishRequest.class));
-
+        assertThrows(NoScopusEmailsReceived.class, () -> handler.handleRequest(SCHEDULED_EVENT, context));
     }
 
     @Test
@@ -93,8 +71,7 @@ public class VerifyScopusEmailReceivedHandlerTest {
         throws MimeException, IOException {
         stubObjectKeyListResponse(freshObject());
         stubs3Content(EmailGenerator.generateValidEmail());
-        var alarm = handler.handleRequest(SCHEDULED_EVENT, context);
-        assertThat(alarm, is(nullValue()));
+        assertDoesNotThrow(() -> handler.handleRequest(SCHEDULED_EVENT, context));
     }
 
     @SuppressWarnings("unchecked")

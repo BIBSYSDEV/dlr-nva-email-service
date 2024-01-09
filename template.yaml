@@ -260,27 +260,21 @@ Resources:
           Properties:
             Schedule: 'cron(0 0 ? * WED *)'
 
-  SESRuleSetMetricFilter:
-    Type: AWS::Logs::MetricFilter
-    Properties:
-      LogGroupName: !Sub " /aws/ses/ruleset/${AWS::Region}/${AWS::AccountId}"
-      FilterPattern:  !Sub "{ $.notificationType = 'Received' && $.receipt.action.name = email-receive-ruleset-${AWS::AccountId} }"
-      MetricTransformations:
-        - MetricValue: "1"
-          MetricNamespace: "SES"
-          MetricName: !Sub "scopus-email-metric-${AWS::AccountId}"
 
-  TooManyScopusEmailsReceived:
+  VerifyScopusEmailReceivedAlarm:
     Type: AWS::CloudWatch::Alarm
     Properties:
-      AlarmName: AWS/SES Too many Scopus Email received
-      MetricName: !Sub "scopus-email-metric-${AWS::AccountId}"
-      Namespace: SES
+      AlarmName: No scopus email received
+      AlarmDescription: No scopus emails younger than 24 hours found in s3 bucket
+      Namespace: AWS/Lambda
+      MetricName: Errors
+      Dimensions:
+        - Name: FunctionName
+          Value: !GetAtt CheckThatScopusEmailWasReceivedFunction.Arn
       Statistic: Sum
       Period: 28800
       EvaluationPeriods: 1
       Threshold: 1
-      TreatMissingData: missing
-      ComparisonOperator: GreaterThanThreshold
+      ComparisonOperator: GreaterThanOrEqualToThreshold
       AlarmActions:
         - !Ref SlackSnsArn

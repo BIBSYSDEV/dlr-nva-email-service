@@ -9,6 +9,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import no.sikt.nva.email.reader.mapper.messagebodyreader.EmailParser;
 import no.sikt.nva.email.reader.mapper.messagebodyreader.ScopusEmailValidator;
+import no.sikt.nva.email.reader.model.exception.NoScopusEmailsReceived;
 import no.unit.nva.s3.S3Driver;
 import nva.commons.core.Environment;
 import nva.commons.core.JacocoGenerated;
@@ -21,14 +22,9 @@ import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.ListObjectsV2Request;
 import software.amazon.awssdk.services.s3.model.S3Object;
-import software.amazon.awssdk.services.sns.SnsAsyncClient;
-import software.amazon.awssdk.services.sns.model.PublishRequest;
 
 public class VerifyScopusEmailReceivedHandler
-    implements RequestHandler<ScheduledEvent, PublishRequest> {
-
-    public static final String ALARM_MESSAGE = "No emails were received in SES on Wednesdays.";
-    public static final String ALARM_SUBJECT = "No emails received on Wednesday";
+    implements RequestHandler<ScheduledEvent, Void> {
     private static final String NON_SCOPUS_EMAIL_FOUND = "NON SCOPUS EMAIL FOUND";
     private static final Logger logger = LoggerFactory.getLogger(VerifyScopusEmailReceivedHandler.class);
 
@@ -36,31 +32,23 @@ public class VerifyScopusEmailReceivedHandler
     private static final Integer GENEROUS_LIMIT_OF_EXPECTED_KEYS_IN_BUCKET = 10;
     private final S3Client s3Client;
     private final String bucketName;
-    private final SnsAsyncClient snsAsyncClient;
-    private final String snsTopicArn;
 
     @JacocoGenerated
     public VerifyScopusEmailReceivedHandler() {
         this(S3Client.create(),
-             SnsAsyncClient.create(),
-             new Environment().readEnv("SLACK_SNS_TOPIC"),
              new Environment().readEnv("SCOPUS_EMAIL_BUCKET_NAME"));
     }
 
     public VerifyScopusEmailReceivedHandler(S3Client s3Client,
-                                            SnsAsyncClient snsAsyncClient,
-                                            String snsTopicArn,
                                             String bucketName) {
         this.s3Client = s3Client;
-        this.snsAsyncClient = snsAsyncClient;
-        this.snsTopicArn = snsTopicArn;
         this.bucketName = bucketName;
     }
 
     @Override
-    public PublishRequest handleRequest(ScheduledEvent scheduledEvent, Context context) {
+    public Void handleRequest(ScheduledEvent scheduledEvent, Context context) {
         if (!receivedScopusEmail()) {
-            return emitAlarm();
+            emitAlarm();
         }
         return null;
     }
@@ -70,14 +58,8 @@ public class VerifyScopusEmailReceivedHandler
         return s3Object.lastModified().isAfter(twentyFourHoursAgo);
     }
 
-    private PublishRequest emitAlarm() {
-        var publishRequest = PublishRequest.builder()
-                                 .topicArn(snsTopicArn)
-                                 .subject(ALARM_SUBJECT)
-                                 .message(ALARM_MESSAGE)
-                                 .build();
-        snsAsyncClient.publish(publishRequest);
-        return publishRequest;
+    private void emitAlarm() {
+        throw new NoScopusEmailsReceived();
     }
 
     private boolean receivedScopusEmail() {
