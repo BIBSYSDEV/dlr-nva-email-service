@@ -278,3 +278,23 @@ Resources:
       ComparisonOperator: GreaterThanOrEqualToThreshold
       AlarmActions:
         - !Ref SlackSnsArn
+
+  TooManyEmailsReceived:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: Too many scopus emails received in a day
+      AlarmDescription: If this alarm is triggered, then check that we are not being spammed
+      AlarmActions:
+        - !Ref SlackSnsArn
+      MetricName: Received
+      Namespace: AWS/SES
+      Statistic: Sum
+      Dimensions:
+        - Name: RuleSetName
+          Value: !Sub "email-receive-ruleset-${AWS::AccountId}"
+      Period: 86400
+      EvaluationPeriods: 1
+      DatapointsToAlarm: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: missing
