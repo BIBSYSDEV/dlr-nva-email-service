@@ -252,7 +252,6 @@ Resources:
       Role: !GetAtt DefaultLambdaRole.Arn
       Environment:
         Variables:
-          SLACK_SNS_TOPIC: !Ref SlackSnsArn
           SCOPUS_EMAIL_BUCKET_NAME: !Sub "${ScopusEmailBucketName}-${AWS::AccountId}"
       Events:
         CheckForEmail:
