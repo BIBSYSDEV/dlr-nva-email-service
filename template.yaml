@@ -28,6 +28,9 @@ Parameters:
     Type: String
     Description: Name of the bucket that receives the scopus-zip files. It is created in the nva-publication stack
     Default: "scopus-zip-files-v2"
+  SlackSnsArn:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: '/NVA/Monitoring/SlackSnsArn'
 
 Globals:
   Function:
@@ -167,6 +170,11 @@ Resources:
     Properties:
       AccessControl: Private
       BucketName: !Sub "${ScopusEmailBucketName}-${AWS::AccountId}"
+      LifecycleConfiguration:
+        Rules:
+          - Id: DeleteContentAfter20Days
+            Status: Enabled
+            ExpirationInDays: 20
 
 
   # Set up automatically verified from_address domain: This will only work for Route 53 domains.
@@ -227,3 +235,34 @@ Resources:
         Actions:
           - S3Action:
               BucketName: !Sub "${ScopusEmailBucketName}-${AWS::AccountId}"
+
+  CheckThatScopusEmailWasReceivedFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: custom-alarms
+      Handler: no/sikt/nva/email/alarm/handler.VerifyScopusEmailReceivedHandler::handleRequest
+      Role: !GetAtt DefaultLambdaRole.Arn
+      Environment:
+        Variables:
+          SLACK_SNS_TOPIC: !Ref SlackSnsArn
+          SCOPUS_EMAIL_BUCKET_NAME: !Sub "${ScopusEmailBucketName}-${AWS::AccountId}"
+      Events:
+        CheckForEmail:
+          Type: Schedule
+          Properties:
+            Schedule: 'cron(0 0 ? * WED *)'
+
+
+  TooManyScopusEmailsReceived:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: AWS/SES Too many Scopus Email received
+      MetricName: Received
+      Namespace: AWS/SES
+      Statistic: Sum
+      Period: 28800
+      EvaluationPeriods: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      AlarmActions:
+        - !Ref SlackSnsArn

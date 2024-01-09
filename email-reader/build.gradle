@@ -14,4 +14,6 @@ dependencies {
     implementation libs.vavr
     implementation libs.resilience4j.retry
 
+    implementation libs.aws.sdk2.sns
+
 }
