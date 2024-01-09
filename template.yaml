@@ -260,17 +260,27 @@ Resources:
           Properties:
             Schedule: 'cron(0 0 ? * WED *)'
 
+  SESRuleSetMetricFilter:
+    Type: AWS::Logs::MetricFilter
+    Properties:
+      LogGroupName: !Sub " /aws/ses/ruleset/${AWS::Region}/${AWS::AccountId}"
+      FilterPattern:  !Sub "{ $.notificationType = 'Received' && $.receipt.action.name = email-receive-ruleset-${AWS::AccountId} }"
+      MetricTransformations:
+        - MetricValue: "1"
+          MetricNamespace: "SES"
+          MetricName: !Sub "scopus-email-metric-${AWS::AccountId}"
 
   TooManyScopusEmailsReceived:
     Type: AWS::CloudWatch::Alarm
     Properties:
       AlarmName: AWS/SES Too many Scopus Email received
-      MetricName: Received
-      Namespace: AWS/SES
+      MetricName: !Sub "scopus-email-metric-${AWS::AccountId}"
+      Namespace: SES
       Statistic: Sum
       Period: 28800
       EvaluationPeriods: 1
       Threshold: 1
+      TreatMissingData: missing
       ComparisonOperator: GreaterThanThreshold
       AlarmActions:
         - !Ref SlackSnsArn
