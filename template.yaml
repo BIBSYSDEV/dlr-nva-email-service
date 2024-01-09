@@ -247,8 +247,8 @@ Resources:
   CheckThatScopusEmailWasReceivedFunction:
     Type: AWS::Serverless::Function
     Properties:
-      CodeUri: custom-alarms
-      Handler: no/sikt/nva/email/alarm/handler.VerifyScopusEmailReceivedHandler::handleRequest
+      CodeUri: email-reader
+      Handler: no.sikt.nva.email.reader.handler.VerifyScopusEmailReceivedHandler::handleRequest
       Role: !GetAtt DefaultLambdaRole.Arn
       Environment:
         Variables:
