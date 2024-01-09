@@ -270,11 +270,12 @@ Resources:
       MetricName: Errors
       Dimensions:
         - Name: FunctionName
-          Value: !GetAtt CheckThatScopusEmailWasReceivedFunction.Arn
+          Value: !Ref CheckThatScopusEmailWasReceivedFunction
       Statistic: Sum
-      Period: 5
+      Period: 300
       EvaluationPeriods: 1
       Threshold: 1
+      DatapointsToAlarm: 1
       ComparisonOperator: GreaterThanOrEqualToThreshold
       AlarmActions:
         - !Ref SlackSnsArn
