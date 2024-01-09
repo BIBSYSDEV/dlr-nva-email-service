@@ -272,7 +272,7 @@ Resources:
         - Name: FunctionName
           Value: !GetAtt CheckThatScopusEmailWasReceivedFunction.Arn
       Statistic: Sum
-      Period: 28800
+      Period: 60
       EvaluationPeriods: 1
       Threshold: 1
       ComparisonOperator: GreaterThanOrEqualToThreshold
