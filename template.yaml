@@ -28,6 +28,9 @@ Parameters:
     Type: String
     Description: Name of the bucket that receives the scopus-zip files. It is created in the nva-publication stack
     Default: "scopus-zip-files-v2"
+  SlackSnsArn:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: '/NVA/Monitoring/SlackSnsArn'
 
 Globals:
   Function:
@@ -167,6 +170,11 @@ Resources:
     Properties:
       AccessControl: Private
       BucketName: !Sub "${ScopusEmailBucketName}-${AWS::AccountId}"
+      LifecycleConfiguration:
+        Rules:
+          - Id: DeleteContentAfter20Days
+            Status: Enabled
+            ExpirationInDays: 20
 
 
   # Set up automatically verified from_address domain: This will only work for Route 53 domains.
@@ -227,3 +235,58 @@ Resources:
         Actions:
           - S3Action:
               BucketName: !Sub "${ScopusEmailBucketName}-${AWS::AccountId}"
+
+  CheckThatScopusEmailWasReceivedFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: email-reader
+      Handler: no.sikt.nva.email.reader.handler.VerifyScopusEmailReceivedHandler::handleRequest
+      Role: !GetAtt DefaultLambdaRole.Arn
+      Environment:
+        Variables:
+          SCOPUS_EMAIL_BUCKET_NAME: !Sub "${ScopusEmailBucketName}-${AWS::AccountId}"
+      Events:
+        CheckForEmail:
+          Type: Schedule
+          Properties:
+            Schedule: 'cron(0 23 ? * WED *)'
+
+
+  VerifyScopusEmailReceivedAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: No scopus email received
+      AlarmDescription: No scopus emails younger than 24 hours found in s3 bucket
+      Namespace: AWS/Lambda
+      MetricName: Errors
+      Dimensions:
+        - Name: FunctionName
+          Value: !Ref CheckThatScopusEmailWasReceivedFunction
+      Statistic: Sum
+      Period: 300
+      EvaluationPeriods: 1
+      Threshold: 1
+      DatapointsToAlarm: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      AlarmActions:
+        - !Ref SlackSnsArn
+
+  TooManyEmailsReceived:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName: Too many scopus emails received in a day
+      AlarmDescription: If this alarm is triggered, then check that we are not being spammed
+      AlarmActions:
+        - !Ref SlackSnsArn
+      MetricName: Received
+      Namespace: AWS/SES
+      Statistic: Sum
+      Dimensions:
+        - Name: RuleSetName
+          Value: !Sub "email-receive-ruleset-${AWS::AccountId}"
+      Period: 86400
+      EvaluationPeriods: 1
+      DatapointsToAlarm: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanThreshold
+      TreatMissingData: missing
