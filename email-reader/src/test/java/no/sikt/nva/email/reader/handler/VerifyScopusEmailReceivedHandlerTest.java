@@ -33,7 +33,7 @@ import software.amazon.awssdk.services.s3.model.S3Object;
 public class VerifyScopusEmailReceivedHandlerTest {
 
     private static final String OBJECT_KEY = "someObjectKey";
-    private final String BUCKET_NAME = "someBucketName";
+    private static final String BUCKET_NAME = "someBucketName";
 
     private final FakeContext context = new FakeContext() {
         @Override
@@ -41,7 +41,7 @@ public class VerifyScopusEmailReceivedHandlerTest {
             return randomString();
         }
     };
-    private final ScheduledEvent SCHEDULED_EVENT = new ScheduledEvent();
+    private final ScheduledEvent scheduledEvent = new ScheduledEvent();
     private S3Client s3Client;
     private VerifyScopusEmailReceivedHandler handler;
 
@@ -56,14 +56,14 @@ public class VerifyScopusEmailReceivedHandlerTest {
     @Test
     void shouldEmitEventWhenThereIsNoObjectYoungerThan24hours() {
         stubObjectKeyListResponse(createOldS3Object());
-        assertThrows(NoScopusEmailsReceived.class, () -> handler.handleRequest(SCHEDULED_EVENT, context));
+        assertThrows(NoScopusEmailsReceived.class, () -> handler.handleRequest(scheduledEvent, context));
     }
 
     @Test
     void shouldEmitEventWhenThereIsNoScopusEmailObjectInBucket() {
         stubObjectKeyListResponse(freshObject());
         stubs3Content(randomString());
-        assertThrows(NoScopusEmailsReceived.class, () -> handler.handleRequest(SCHEDULED_EVENT, context));
+        assertThrows(NoScopusEmailsReceived.class, () -> handler.handleRequest(scheduledEvent, context));
     }
 
     @Test
@@ -71,7 +71,7 @@ public class VerifyScopusEmailReceivedHandlerTest {
         throws MimeException, IOException {
         stubObjectKeyListResponse(freshObject());
         stubs3Content(EmailGenerator.generateValidEmail());
-        assertDoesNotThrow(() -> handler.handleRequest(SCHEDULED_EVENT, context));
+        assertDoesNotThrow(() -> handler.handleRequest(scheduledEvent, context));
     }
 
     @SuppressWarnings("unchecked")
