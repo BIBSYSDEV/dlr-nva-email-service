@@ -25,7 +25,8 @@ import software.amazon.awssdk.services.s3.model.S3Object;
 
 public class VerifyScopusEmailReceivedHandler
     implements RequestHandler<ScheduledEvent, Void> {
-    private static final String NON_SCOPUS_EMAIL_FOUND = "NON SCOPUS EMAIL FOUND";
+
+    private static final String NON_SCOPUS_EMAIL_FOUND = "NON SCOPUS EMAIL FOUND {}";
     private static final Logger logger = LoggerFactory.getLogger(VerifyScopusEmailReceivedHandler.class);
 
     //we expect to receive one email once a week; and we have object expiration set to 20 days.
