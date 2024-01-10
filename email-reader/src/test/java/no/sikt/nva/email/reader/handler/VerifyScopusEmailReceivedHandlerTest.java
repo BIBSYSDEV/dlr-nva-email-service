@@ -12,7 +12,7 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import no.sikt.nva.email.reader.model.exception.NoScopusEmailsReceived;
+import no.sikt.nva.email.reader.model.exception.NoScopusEmailsReceivedException;
 import no.sikt.nva.email.reader.util.EmailGenerator;
 import no.unit.nva.stubs.FakeContext;
 import nva.commons.core.ioutils.IoUtils;
@@ -56,14 +56,14 @@ public class VerifyScopusEmailReceivedHandlerTest {
     @Test
     void shouldEmitEventWhenThereIsNoObjectYoungerThan24hours() {
         stubObjectKeyListResponse(createOldS3Object());
-        assertThrows(NoScopusEmailsReceived.class, () -> handler.handleRequest(scheduledEvent, context));
+        assertThrows(NoScopusEmailsReceivedException.class, () -> handler.handleRequest(scheduledEvent, context));
     }
 
     @Test
     void shouldEmitEventWhenThereIsNoScopusEmailObjectInBucket() {
         stubObjectKeyListResponse(freshObject());
         stubs3Content(randomString());
-        assertThrows(NoScopusEmailsReceived.class, () -> handler.handleRequest(scheduledEvent, context));
+        assertThrows(NoScopusEmailsReceivedException.class, () -> handler.handleRequest(scheduledEvent, context));
     }
 
     @Test

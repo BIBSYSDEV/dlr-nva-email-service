@@ -9,7 +9,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import no.sikt.nva.email.reader.mapper.messagebodyreader.EmailParser;
 import no.sikt.nva.email.reader.mapper.messagebodyreader.ScopusEmailValidator;
-import no.sikt.nva.email.reader.model.exception.NoScopusEmailsReceived;
+import no.sikt.nva.email.reader.model.exception.NoScopusEmailsReceivedException;
 import no.unit.nva.s3.S3Driver;
 import nva.commons.core.Environment;
 import nva.commons.core.JacocoGenerated;
@@ -26,8 +26,9 @@ import software.amazon.awssdk.services.s3.model.S3Object;
 public class VerifyScopusEmailReceivedHandler
     implements RequestHandler<ScheduledEvent, Void> {
 
-    private static final String NON_SCOPUS_EMAIL_FOUND = "NON SCOPUS EMAIL FOUND {}";
     private static final Logger logger = LoggerFactory.getLogger(VerifyScopusEmailReceivedHandler.class);
+
+    private static final String NON_SCOPUS_EMAIL_FOUND = "NON SCOPUS EMAIL FOUND {}";
 
     //we expect to receive one email once a week; and we have object expiration set to 20 days.
     private static final Integer GENEROUS_LIMIT_OF_EXPECTED_KEYS_IN_BUCKET = 10;
@@ -48,7 +49,7 @@ public class VerifyScopusEmailReceivedHandler
 
     @Override
     public Void handleRequest(ScheduledEvent scheduledEvent, Context context) {
-        if (!receivedScopusEmail()) {
+        if (didNotReceiveScopusEmail()) {
             emitAlarm();
         }
         return null;
@@ -60,13 +61,13 @@ public class VerifyScopusEmailReceivedHandler
     }
 
     private void emitAlarm() {
-        throw new NoScopusEmailsReceived();
+        throw new NoScopusEmailsReceivedException();
     }
 
-    private boolean receivedScopusEmail() {
+    private boolean didNotReceiveScopusEmail() {
         return getObjectsYoungerThan24Hours()
                    .stream()
-                   .anyMatch(this::validateScopusEmail);
+                   .noneMatch(this::validateScopusEmail);
     }
 
     private boolean validateScopusEmail(S3Object s3Object) {
