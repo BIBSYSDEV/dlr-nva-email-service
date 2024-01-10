@@ -55,7 +55,7 @@ public class VerifyScopusEmailReceivedHandler
     }
 
     private static boolean isWithinLast24Hours(S3Object s3Object) {
-        Instant twentyFourHoursAgo = Instant.now().minus(24, ChronoUnit.HOURS);
+        var twentyFourHoursAgo = Instant.now().minus(24, ChronoUnit.HOURS);
         return s3Object.lastModified().isAfter(twentyFourHoursAgo);
     }
 
