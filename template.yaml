@@ -257,7 +257,7 @@ Resources:
         CheckForEmail:
           Type: Schedule
           Properties:
-            Schedule: 'cron(0 0 ? * WED *)'
+            Schedule: 'cron(0 23 ? * WED *)'
 
 
   VerifyScopusEmailReceivedAlarm:
