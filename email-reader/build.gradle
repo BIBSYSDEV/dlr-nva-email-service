@@ -2,7 +2,10 @@ dependencies {
     implementation libs.nva.core
     implementation libs.nva.identifiers
     implementation libs.nva.s3
+
     implementation libs.aws.sdk2.s3
+    implementation libs.aws.java.sdk.core
+    implementation libs.aws.sdk2.core
 
     implementation libs.aws.lambda.java.core
     implementation libs.aws.lambda.events

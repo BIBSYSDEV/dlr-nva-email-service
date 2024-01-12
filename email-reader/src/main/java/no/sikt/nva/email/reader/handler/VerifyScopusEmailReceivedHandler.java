@@ -37,7 +37,7 @@ public class VerifyScopusEmailReceivedHandler
 
     @JacocoGenerated
     public VerifyScopusEmailReceivedHandler() {
-        this(S3Client.create(),
+        this(S3Driver.defaultS3Client().build(),
              new Environment().readEnv("SCOPUS_EMAIL_BUCKET_NAME"));
     }
 
