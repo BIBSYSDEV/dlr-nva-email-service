@@ -23,6 +23,7 @@ public class ScopusEmailValidator {
     public static final String INVALID_SPF_HEADERS_IN_EMAIL_ERROR_MESSAGE = "Invalid spf headers in email";
     public static final String WRONG_SUBJECT_RECEIVED_S_SHOULD_HAVE_BEEN_MESSAGE = "Wrong subject received: {}, "
                                                                                    + "should have been: {}";
+    public static final String SIKT_OUTLOOK_DOMAIN = "sikt.no";
     private final String bucket;
     private final String objectKey;
 
@@ -35,6 +36,15 @@ public class ScopusEmailValidator {
         validateHeaders(message);
     }
 
+    private boolean isNotFromElsevierNorSikt(Mailbox sender){
+        return isNotFromElsevier(sender) && isNotFromSikt(sender);
+        
+    }
+
+    private boolean isNotFromSikt(Mailbox sender) {
+        return !SIKT_OUTLOOK_DOMAIN.equalsIgnoreCase(sender.getDomain());
+    }
+
     private boolean isNotFromElsevier(Mailbox sender) {
         return !VALID_FROM_LOCAL_PART.equalsIgnoreCase(sender.getLocalPart())
                || !VALID_FROM_DOMAIN.equalsIgnoreCase(sender.getDomain());
@@ -44,7 +54,7 @@ public class ScopusEmailValidator {
         var wrongSender =
             Optional.ofNullable(email.getFrom())
                 .map(mailboxes -> mailboxes.get(0))
-                .map(this::isNotFromElsevier)
+                .map(this::isNotFromElsevierNorSikt)
                 .orElse(true);
         if (wrongSender) {
             logger.error("Wrong sender in email");
