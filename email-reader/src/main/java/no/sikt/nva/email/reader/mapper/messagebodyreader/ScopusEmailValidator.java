@@ -7,17 +7,21 @@ import org.apache.james.mime4j.stream.Field;
 
 import java.util.Optional;
 import java.util.regex.Pattern;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ScopusEmailValidator {
+
     public static final String RECEIVED_SPF_HEADER = "Received-SPF";
     public static final String COULD_NOT_PARSE_EMAIL = "Could not parse email";
-
     public static final String COULD_NOT_VERIFY_EMAIL = "Could not verify email";
     public static final String VALID_FROM_LOCAL_PART = "ELSRAPTechSPFDataDefenders";
     public static final String VALID_FROM_DOMAIN = "elsevier.com";
     public static final String VALID_SUBJECT = "Scopus Data available for downloading";
+    private static final Logger logger = LoggerFactory.getLogger(ScopusEmailValidator.class);
     private static final String SPF_CHECK = "^pass \\(spfCheck: domain of sikt\\.no";
+    public static final String INVALID_SPF_HEADERS_IN_EMAIL_ERROR_MESSAGE = "Invalid spf headers in email";
+    public static final String WRONG_SUBJECT_RECEIVED_S_SHOULD_HAVE_BEEN_MESSAGE = "Wrong subject received: %s, should have been: %s";
     private final String bucket;
     private final String objectKey;
 
@@ -32,27 +36,34 @@ public class ScopusEmailValidator {
 
     private boolean isNotFromElsevier(Mailbox sender) {
         return !VALID_FROM_LOCAL_PART.equalsIgnoreCase(sender.getLocalPart())
-                || !VALID_FROM_DOMAIN.equalsIgnoreCase(sender.getDomain());
+               || !VALID_FROM_DOMAIN.equalsIgnoreCase(sender.getDomain());
     }
 
     private boolean wrongSender(Message email) {
-        return Optional.ofNullable(email.getFrom())
+        var wrongSender =
+            Optional.ofNullable(email.getFrom())
                 .map(mailboxes -> mailboxes.get(0))
                 .map(this::isNotFromElsevier)
                 .orElse(true);
+        if (wrongSender) {
+            logger.error("Wrong sender in email");
+        }
+        return wrongSender;
     }
 
     private boolean hasSpfHeaderFromSikt(Field spfHeader) {
         var pattern = Pattern.compile(SPF_CHECK);
         var matcher = pattern.matcher(spfHeader.getBody());
         return matcher.find();
-
     }
 
     private boolean wrongSubject(Message email) {
-        return !VALID_SUBJECT.equals(email.getSubject());
+        var invalidSubject = !VALID_SUBJECT.equals(email.getSubject());
+        if (invalidSubject) {
+            logger.error(WRONG_SUBJECT_RECEIVED_S_SHOULD_HAVE_BEEN_MESSAGE, email.getSubject(), VALID_SUBJECT);
+        }
+        return invalidSubject;
     }
-
 
     private void validateHeaders(Message email) {
         if (invalidReceivedSpfHeader(email) || wrongSubject(email) || wrongSender(email)) {
@@ -62,7 +73,10 @@ public class ScopusEmailValidator {
 
     private boolean invalidReceivedSpfHeader(Message email) {
         var spfHeaders = email.getHeader().getFields(RECEIVED_SPF_HEADER);
-        return spfHeaders.stream().noneMatch(this::hasSpfHeaderFromSikt);
+        var invalidSpfHeaders = spfHeaders.stream().noneMatch(this::hasSpfHeaderFromSikt);
+        if (invalidSpfHeaders) {
+            logger.error(INVALID_SPF_HEADERS_IN_EMAIL_ERROR_MESSAGE);
+        }
+        return invalidSpfHeaders;
     }
-
 }
