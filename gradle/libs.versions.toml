@@ -1,17 +1,17 @@
 [versions]
-nva = "1.36.9"
+nva = "1.37.0"
 hamcrest = { strictly = '2.2' }
 junit5 = { strictly = '5.10.0' }
 mockito = { strictly = '5.3.1' }
 log4j = { strictly = '2.22.0' }
 slf4j = { require = '2.0.5' }
-awsSDk = '1.12.544'
-awsSdk2 = { strictly = '2.20.141' }
-awsLambdaCore = { strictly = '1.2.2' }
+awsSDk = '1.12.646'
+awsSdk2 = { strictly = '2.23.12' }
+awsLambdaCore = { strictly = '1.2.3' }
 awsLambdaEvents = { strictly = '3.11.4' }
 mime4j = { strictly = '0.8.9' }
 vavrVersion = '0.10.4'
-resilience4jRetry = '2.0.2'
+resilience4jRetry = '2.2.0'
 
 [libraries]
 nva-core = { group = "com.github.bibsysdev", name = "core", version.ref = "nva" }

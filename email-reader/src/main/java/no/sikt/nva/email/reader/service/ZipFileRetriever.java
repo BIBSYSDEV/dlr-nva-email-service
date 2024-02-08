@@ -1,6 +1,5 @@
 package no.sikt.nva.email.reader.service;
 
-
 import io.github.resilience4j.retry.Retry;
 import io.github.resilience4j.retry.RetryRegistry;
 import io.vavr.control.Try;
@@ -12,8 +11,12 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.function.Supplier;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ZipFileRetriever implements FileRetriever {
+
+    private static final Logger logger = LoggerFactory.getLogger(ZipFileRetriever.class);
 
     private final HttpClient httpClient;
 
@@ -31,22 +34,23 @@ public class ZipFileRetriever implements FileRetriever {
 
     private InputStream sendRequest(URI uri) {
         return Try.of(() -> httpClient.send(createRequest(uri), HttpResponse.BodyHandlers.ofInputStream()))
-                .mapTry(this::getBodyFromResponse).get();
+                   .mapTry(this::getBodyFromResponse).get();
     }
 
     private InputStream getBodyFromResponse(HttpResponse<InputStream> response) {
         if (response.statusCode() != HttpURLConnection.HTTP_OK) {
+            logger.error("Request failed with status code: {}, for url: {}", response.statusCode(),
+                         response.request().uri().toString());
             throw new RuntimeException("Request failed with status code: " + response.statusCode());
         }
         return response.body();
     }
 
-
     private HttpRequest createRequest(URI uri) {
         return HttpRequest.newBuilder()
-                .GET()
-                .setHeader("Accept", "application/zip")
-                .uri(uri)
-                .build();
+                   .GET()
+                   .setHeader("Accept", "application/zip")
+                   .uri(uri)
+                   .build();
     }
 }

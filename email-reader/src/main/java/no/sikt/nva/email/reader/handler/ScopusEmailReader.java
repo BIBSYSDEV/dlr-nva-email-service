@@ -1,10 +1,14 @@
 package no.sikt.nva.email.reader.handler;
 
-
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
 import com.amazonaws.services.lambda.runtime.events.S3Event;
 import io.vavr.control.Try;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.util.Set;
+import java.util.stream.Collectors;
 import no.sikt.nva.email.reader.mapper.messagebodyreader.EmailParser;
 import no.sikt.nva.email.reader.mapper.messagebodyreader.MultipartReader;
 import no.sikt.nva.email.reader.mapper.messagebodyreader.ScopusEmailValidator;
@@ -17,16 +21,14 @@ import nva.commons.core.JacocoGenerated;
 import nva.commons.core.paths.UnixPath;
 import nva.commons.core.paths.UriWrapper;
 import org.apache.james.mime4j.dom.Message;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.services.s3.S3Client;
-
-import java.io.InputStream;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 
 public class ScopusEmailReader implements RequestHandler<S3Event, Set<URI>> {
+    private static final Logger logger = LoggerFactory.getLogger(ScopusEmailReader.class);
+
 
 
     public static final String UNABLE_TO_DOWNLOAD_FILE = "Unable to download file";
@@ -102,7 +104,9 @@ public class ScopusEmailReader implements RequestHandler<S3Event, Set<URI>> {
 
     private Set<URI> extractUrisFromMessage(S3Event event, Message message) {
         var messageReader = new MultipartReader(message, extractBucketName(event), extractObjectKey(event));
-        return messageReader.extractScopusURL();
+        var scopusEmail = messageReader.extractScopusURL();
+        logger.info("Found the following URIS {}", scopusEmail);
+        return scopusEmail;
     }
 
     private Message extractMessage(S3Event event, String emailString) {
