@@ -1,5 +1,5 @@
 [versions]
-nva = "1.36.10"
+nva = "1.36.12"
 hamcrest = '2.2'
 junit5 = '5.8.2'
 mockito = '4.5.1'
@@ -12,7 +12,7 @@ awsLambdaCore = { strictly = '1.2.2' }
 awsLambdaEvents = { strictly = '3.11.4' }
 mime4j = { strictly = '0.8.9' }
 vavrVersion = '0.10.4'
-resilience4jRetry = '2.0.2'
+resilience4jRetry = '2.2.0'
 
 [libraries]
 nva-core = { group = "com.github.bibsysdev", name = "core", version.ref = "nva" }
