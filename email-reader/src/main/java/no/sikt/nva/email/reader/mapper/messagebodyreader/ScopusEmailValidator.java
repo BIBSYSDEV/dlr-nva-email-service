@@ -19,7 +19,7 @@ public class ScopusEmailValidator {
     public static final String VALID_FROM_DOMAIN = "elsevier.com";
     public static final String VALID_SUBJECT = "Scopus Data available for downloading";
     private static final Logger logger = LoggerFactory.getLogger(ScopusEmailValidator.class);
-    private static final String SPF_CHECK = "^pass \\(spfCheck: domain of sikt\\.no";
+    private static final String SPF_CHECK = "^Pass \\(protection\\.outlook\\.com";
     public static final String INVALID_SPF_HEADERS_IN_EMAIL_ERROR_MESSAGE = "Invalid spf headers in email";
     public static final String WRONG_SUBJECT_RECEIVED_S_SHOULD_HAVE_BEEN_MESSAGE = "Wrong subject received: {}, "
                                                                                    + "should have been: {}";
