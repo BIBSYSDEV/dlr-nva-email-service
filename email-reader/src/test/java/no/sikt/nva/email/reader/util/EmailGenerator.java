@@ -32,7 +32,7 @@ public class EmailGenerator {
     public static final String CONTENT_TYPE_TEXT_HTML = "text/html";
     public static final String TRANSFER_ENCODING_QUOTED_PRINTABLE = "quoted-printable";
     public static final String MIXED_SUB_TYPE = "mixed";
-    private static final String VALID_RECEIVED_SPF_HEADER_PART = "Received-SPF: pass (spfCheck: domain of sikt.no ";
+    private static final String VALID_RECEIVED_SPF_HEADER_PART = "Received-SPF: Pass (protection.outlook.com:";
 
     public static String generateValidEmail() throws MimeException, IOException {
         var message = Message.Builder.of()
