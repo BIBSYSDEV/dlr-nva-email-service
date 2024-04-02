@@ -20,10 +20,6 @@ Parameters:
     Type: 'AWS::SSM::Parameter::Value<String>'
     Description: The Api domain
     Default: /NVA/ApiDomain
-  ScopusEmailBucketName:
-    Type: String
-    Description: Name of the bucket that receives the scopus emails
-    Default: scopus-emails
   ScopusZipBucketName:
     Type: String
     Description: Name of the bucket that receives the scopus-zip files. It is created in the nva-publication stack
@@ -139,24 +135,6 @@ Resources:
             Method: post
             Path: /email
 
-  ReadScopusEmailFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: email-reader
-      Handler: no.sikt.nva.email.reader.handler.ScopusEmailReader::handleRequest
-      Role: !GetAtt DefaultLambdaRole.Arn
-      MemorySize: 8192
-      ReservedConcurrentExecutions: 1
-      Environment:
-        Variables:
-          SCOPUS_ZIP_BUCKET: !Sub "${ScopusZipBucketName}-${AWS::AccountId}"
-      Events:
-        Scopus:
-          Type: S3
-          Properties:
-            Bucket: !Ref ScopusEmailBucketTest
-            Events: 's3:ObjectCreated:*'
-
   EmailServiceBasePathMapping:
     Type: AWS::ApiGateway::BasePathMapping
     Properties:
@@ -164,17 +142,6 @@ Resources:
       DomainName: !Ref ApiDomain
       RestApiId: !Ref EmailGatewayAPI
       Stage: !Ref EmailGatewayAPI.Stage
-
-  ScopusEmailBucketTest:
-    Type: AWS::S3::Bucket
-    Properties:
-      AccessControl: Private
-      BucketName: !Sub "${ScopusEmailBucketName}-${AWS::AccountId}"
-      LifecycleConfiguration:
-        Rules:
-          - Id: DeleteContentAfter20Days
-            Status: Enabled
-            ExpirationInDays: 20
 
 
   # Set up automatically verified from_address domain: This will only work for Route 53 domains.
@@ -195,98 +162,5 @@ Resources:
     Properties:
       EmailIdentity: !Sub 'scopus@${CustomDomain}'
 
-  AllowSesToPutToS3:
-    Type: AWS::S3::BucketPolicy
-    DependsOn: ScopusEmailBucketTest
-    Properties:
-      Bucket: !Ref ScopusEmailBucketTest
-      PolicyDocument:
-        Version: '2012-10-17'
-        Statement:
-          - Effect: Allow
-            Action:
-              - s3:PutObject
-            Resource: !Sub "arn:aws:s3:::scopus-emails-${AWS::AccountId}/*"
-            Principal:
-              Service: "ses.amazonaws.com"
-            Condition:
-              StringEquals:
-                'AWS:SourceAccount': !Ref AWS::AccountId
-
-  ScopusEmailRuleSet:
-    Type: AWS::SES::ReceiptRuleSet
-    Properties:
-      RuleSetName: !Sub 'email-receive-ruleset-${AWS::AccountId}'
-
-  MoveScopusEmailsToS3BucketRule:
-    Type: AWS::SES::ReceiptRule
-    DependsOn:
-      - ScopusEmailBucketTest
-      - AllowSesToPutToS3
-      - ScopusEmailRuleSet
-    Properties:
-      RuleSetName: !Ref ScopusEmailRuleSet
-      Rule:
-        Name: !Sub 'scopus-email-rule-${AWS::AccountId}'
-        Recipients:
-          - !Sub 'scopus@${CustomDomain}'
-        Enabled: true
-        ScanEnabled: true # when we get ip-address for
-        Actions:
-          - S3Action:
-              BucketName: !Sub "${ScopusEmailBucketName}-${AWS::AccountId}"
-
-  CheckThatScopusEmailWasReceivedFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: email-reader
-      Handler: no.sikt.nva.email.reader.handler.VerifyScopusEmailReceivedHandler::handleRequest
-      Role: !GetAtt DefaultLambdaRole.Arn
-      Environment:
-        Variables:
-          SCOPUS_EMAIL_BUCKET_NAME: !Sub "${ScopusEmailBucketName}-${AWS::AccountId}"
-      Events:
-        CheckForEmail:
-          Type: Schedule
-          Properties:
-            Schedule: 'cron(0 23 ? * WED *)'
 
 
-  VerifyScopusEmailReceivedAlarm:
-    Type: AWS::CloudWatch::Alarm
-    Properties:
-      AlarmName: No scopus email received
-      AlarmDescription: No scopus emails younger than 24 hours found in s3 bucket
-      Namespace: AWS/Lambda
-      MetricName: Errors
-      Dimensions:
-        - Name: FunctionName
-          Value: !Ref CheckThatScopusEmailWasReceivedFunction
-      Statistic: Sum
-      Period: 300
-      EvaluationPeriods: 1
-      Threshold: 1
-      DatapointsToAlarm: 1
-      ComparisonOperator: GreaterThanOrEqualToThreshold
-      AlarmActions:
-        - !Ref SlackSnsArn
-
-  TooManyEmailsReceived:
-    Type: AWS::CloudWatch::Alarm
-    Properties:
-      AlarmName: Too many scopus emails received in a day
-      AlarmDescription: If this alarm is triggered, then check that we are not being spammed
-      AlarmActions:
-        - !Ref SlackSnsArn
-      MetricName: Received
-      Namespace: AWS/SES
-      Statistic: Sum
-      Dimensions:
-        - Name: RuleSetName
-          Value: !Sub "email-receive-ruleset-${AWS::AccountId}"
-      Period: 86400
-      EvaluationPeriods: 1
-      DatapointsToAlarm: 1
-      Threshold: 1
-      ComparisonOperator: GreaterThanThreshold
-      TreatMissingData: missing
