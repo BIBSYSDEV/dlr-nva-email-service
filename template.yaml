@@ -154,7 +154,7 @@ Resources:
         Scopus:
           Type: S3
           Properties:
-            Bucket: !Ref ScopusEmailBucket
+            Bucket: !Ref ScopusEmailBucketTest
             Events: 's3:ObjectCreated:*'
 
   EmailServiceBasePathMapping:
@@ -165,7 +165,7 @@ Resources:
       RestApiId: !Ref EmailGatewayAPI
       Stage: !Ref EmailGatewayAPI.Stage
 
-  ScopusEmailBucket:
+  ScopusEmailBucketTest:
     Type: AWS::S3::Bucket
     Properties:
       AccessControl: Private
@@ -197,9 +197,9 @@ Resources:
 
   AllowSesToPutToS3:
     Type: AWS::S3::BucketPolicy
-    DependsOn: ScopusEmailBucket
+    DependsOn: ScopusEmailBucketTest
     Properties:
-      Bucket: !Ref ScopusEmailBucket
+      Bucket: !Ref ScopusEmailBucketTest
       PolicyDocument:
         Version: '2012-10-17'
         Statement:
@@ -221,7 +221,7 @@ Resources:
   MoveScopusEmailsToS3BucketRule:
     Type: AWS::SES::ReceiptRule
     DependsOn:
-      - ScopusEmailBucket
+      - ScopusEmailBucketTest
       - AllowSesToPutToS3
       - ScopusEmailRuleSet
     Properties:
