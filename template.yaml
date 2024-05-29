@@ -39,36 +39,37 @@ Globals:
     Runtime: java17
 
 Resources:
-  DlrNvaEmailServiceRole:
-    Type: AWS::IAM::Role
-    Properties:
-      AssumeRolePolicyDocument:
-        Version: 2012-10-17
-        Statement:
-          - Effect: Allow
-            Principal:
-              Service: [ lambda.amazonaws.com ]
-            Action: [ 'sts:AssumeRole' ]
-      Policies:
-        - PolicyName: writeLog
-          PolicyDocument:
-            Version: 2012-10-17
-            Statement:
-              - Effect: Allow
-                Action:
-                  - logs:CreateLogGroup
-                  - logs:CreateLogStream
-                  - logs:PutLogEvents
-                Resource: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:*:*'
-        - PolicyName: sendMail
-          PolicyDocument:
-            Version: 2012-10-17
-            Statement:
-              - Effect: Allow
-                Action:
-                  - ses:SendEmail
-                  - ses:SendRawEmail
-                Resource: "*"
+# Re-enable if Rest-api is needed
+#  DlrNvaEmailServiceRole:
+#    Type: AWS::IAM::Role
+#    Properties:
+#      AssumeRolePolicyDocument:
+#        Version: 2012-10-17
+#        Statement:
+#          - Effect: Allow
+#            Principal:
+#              Service: [ lambda.amazonaws.com ]
+#            Action: [ 'sts:AssumeRole' ]
+#      Policies:
+#        - PolicyName: writeLog
+#          PolicyDocument:
+#            Version: 2012-10-17
+#            Statement:
+#              - Effect: Allow
+#                Action:
+#                  - logs:CreateLogGroup
+#                  - logs:CreateLogStream
+#                  - logs:PutLogEvents
+#                Resource: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:*:*'
+#        - PolicyName: sendMail
+#          PolicyDocument:
+#            Version: 2012-10-17
+#            Statement:
+#              - Effect: Allow
+#                Action:
+#                  - ses:SendEmail
+#                  - ses:SendRawEmail
+#                Resource: "*"
 
   DefaultLambdaRole:
     Type: AWS::IAM::Role
@@ -104,40 +105,42 @@ Resources:
                   - s3:PutObjectAcl
                 Resource: "*"
 
-  EmailGatewayAPI:
-    Type: AWS::Serverless::Api
-    Properties:
-      StageName: v1
-      EndpointConfiguration:
-        Type: REGIONAL
-      MethodSettings:
-        - ResourcePath: /email
-          HttpMethod: POST
-      DefinitionBody:
-        'Fn::Transform':
-          Name: AWS::Include
-          Parameters:
-            Location: ./docs/openapi.yaml
+# Re-enable if Rest-api is needed
+#  EmailGatewayAPI:
+#    Type: AWS::Serverless::Api
+#    Properties:
+#      StageName: v1
+#      EndpointConfiguration:
+#        Type: REGIONAL
+#      MethodSettings:
+#        - ResourcePath: /email
+#          HttpMethod: POST
+#      DefinitionBody:
+#        'Fn::Transform':
+#          Name: AWS::Include
+#          Parameters:
+#            Location: ./docs/openapi.yaml
 
-  DlrNvaEmailServiceFunction:
-    Type: AWS::Serverless::Function
-    Properties:
-      CodeUri: email-service
-      Handler: no.sikt.nva.email.EmailRequestHandler::handleRequest
-      Role: !GetAtt DlrNvaEmailServiceRole.Arn
-      Runtime: java17
-      MemorySize: 1798
-      Environment:
-        Variables:
-          ALLOWED_ORIGIN: '*'
-          DEFAULT_FROM_ADDRESS: !Sub "no-reply@${CustomDomain}"
-      Events:
-        SendEmailRequest:
-          Type: Api
-          Properties:
-            RestApiId: !Ref EmailGatewayAPI
-            Method: post
-            Path: /email
+# Re-enable if Rest-api is needed
+#  DlrNvaEmailServiceFunction:
+#    Type: AWS::Serverless::Function
+#    Properties:
+#      CodeUri: email-service
+#      Handler: no.sikt.nva.email.EmailRequestHandler::handleRequest
+#      Role: !GetAtt DlrNvaEmailServiceRole.Arn
+#      Runtime: java17
+#      MemorySize: 1798
+#      Environment:
+#        Variables:
+#          ALLOWED_ORIGIN: '*'
+#          DEFAULT_FROM_ADDRESS: !Sub "no-reply@${CustomDomain}"
+#      Events:
+#        SendEmailRequest:
+#          Type: Api
+#          Properties:
+#            RestApiId: !Ref EmailGatewayAPI
+#            Method: post
+#            Path: /email
 
   ReadScopusEmailFunction:
     Type: AWS::Serverless::Function
@@ -157,13 +160,14 @@ Resources:
             Bucket: !Ref ScopusEmailBucket
             Events: 's3:ObjectCreated:*'
 
-  EmailServiceBasePathMapping:
-    Type: AWS::ApiGateway::BasePathMapping
-    Properties:
-      BasePath: !Sub ${CustomDomainBasePath}
-      DomainName: !Ref ApiDomain
-      RestApiId: !Ref EmailGatewayAPI
-      Stage: !Ref EmailGatewayAPI.Stage
+# Re-enable if Rest-api is needed
+#  EmailServiceBasePathMapping:
+#    Type: AWS::ApiGateway::BasePathMapping
+#    Properties:
+#      BasePath: !Sub ${CustomDomainBasePath}
+#      DomainName: !Ref ApiDomain
+#      RestApiId: !Ref EmailGatewayAPI
+#      Stage: !Ref EmailGatewayAPI.Stage
 
   ScopusEmailBucket:
     Type: AWS::S3::Bucket
