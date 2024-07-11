@@ -49,6 +49,13 @@ public class EmailRequestHandler extends ApiGatewayHandler<EmailRequest, String>
                 .withRegion(Regions.EU_WEST_1).build(), new Environment());
     }
 
+    @JacocoGenerated
+    @Override
+    protected void validateRequest(EmailRequest emailRequest, RequestInfo requestInfo, Context context)
+        throws ApiGatewayException {
+        //Do nothing
+    }
+
     @Override
     protected String processInput(EmailRequest emailRequest, RequestInfo requestInfo, Context context)
             throws ApiGatewayException {
