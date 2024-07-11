@@ -31,6 +31,10 @@ Parameters:
   SlackSnsArn:
     Type: AWS::SSM::Parameter::Value<String>
     Default: '/NVA/Monitoring/SlackSnsArn'
+  DashboardBucketName:
+    Type: String
+    Description: Name of the bucket that receives the dashboard emails
+    Default: dashboard-emails
 
 Globals:
   Function:
@@ -180,6 +184,17 @@ Resources:
             Status: Enabled
             ExpirationInDays: 20
 
+  DashboardEmailBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      AccessControl: Private
+      BucketName: !Sub "${DashboardBucketName}-${AWS::AccountId}"
+      LifecycleConfiguration:
+        Rules:
+          - Id: DeleteContent
+            Status: Enabled
+            ExpirationInDays: 20
+
 
   # Set up automatically verified from_address domain: This will only work for Route 53 domains.
   # Non route 53 domains needs manually updating certificates.
@@ -199,6 +214,12 @@ Resources:
     Properties:
       EmailIdentity: !Sub 'scopus@${CustomDomain}'
 
+  DashboardEmailReceiver:
+    Type: AWS::SES::EmailIdentity
+    Properties:
+      EmailIdentity: !Sub 'dashboard@${CustomDomain}'
+
+
   AllowSesToPutToS3:
     Type: AWS::S3::BucketPolicy
     DependsOn: ScopusEmailBucket
@@ -210,7 +231,9 @@ Resources:
           - Effect: Allow
             Action:
               - s3:PutObject
-            Resource: !Sub "arn:aws:s3:::scopus-emails-${AWS::AccountId}/*"
+            Resource:
+              - !Sub "arn:aws:s3:::scopus-emails-${AWS::AccountId}/*"
+              - !Sub "arn:aws:s3:::dashboard-emails-${AWS::AccountId}/*"
             Principal:
               Service: "ses.amazonaws.com"
             Condition:
@@ -221,6 +244,30 @@ Resources:
     Type: AWS::SES::ReceiptRuleSet
     Properties:
       RuleSetName: !Sub 'email-receive-ruleset-${AWS::AccountId}'
+
+
+  DashboardEmailRuleSet:
+    Type: AWS::SES::ReceiptRuleSet
+    Properties:
+      RuleSetName: !Sub 'dahsboard-receive-ruleset-${AWS::AccountId}'
+
+  MoveDashboardEmailsToS3BucketRule:
+    Type: AWS::SES::ReceiptRule
+    DependsOn:
+      - DashboardEmailBucket
+      - AllowSesToPutToS3
+      - DashboardEmailRuleSet
+    Properties:
+      RuleSetName: !Ref DashboardEmailRuleSet
+      Rule:
+        Name: !Sub 'dashboard-email-rule-${AWS::AccountId}'
+        Recipients:
+          - !Sub 'dashboard@${CustomDomain}'
+        Enabled: true
+        ScanEnabled: true
+        Actions:
+          - S3Action:
+              BucketName: !Sub "${DashboardBucketName}-${AWS::AccountId}"
 
   MoveScopusEmailsToS3BucketRule:
     Type: AWS::SES::ReceiptRule
