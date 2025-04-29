@@ -237,7 +237,6 @@ Resources:
     Type: AWS::SES::ReceiptRule
     DependsOn:
       - AllowSesToPutToS3
-      - ScopusEmailRuleSet
     Properties:
       RuleSetName: !Ref ScopusEmailRuleSet
       Rule:
