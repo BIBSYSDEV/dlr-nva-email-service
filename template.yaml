@@ -185,7 +185,6 @@ Resources:
   ScopusEmailBucket:
     Type: AWS::S3::Bucket
     Properties:
-      AccessControl: Private
       BucketName: !Sub "${ScopusEmailBucketName}-${AWS::AccountId}"
       LifecycleConfiguration:
         Rules:
@@ -214,7 +213,6 @@ Resources:
 
   AllowSesToPutToS3:
     Type: AWS::S3::BucketPolicy
-    DependsOn: ScopusEmailBucket
     Properties:
       Bucket: !Ref ScopusEmailBucket
       PolicyDocument:
@@ -238,7 +236,6 @@ Resources:
   MoveScopusEmailsToS3BucketRule:
     Type: AWS::SES::ReceiptRule
     DependsOn:
-      - ScopusEmailBucket
       - AllowSesToPutToS3
       - ScopusEmailRuleSet
     Properties:
