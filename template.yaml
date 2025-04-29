@@ -43,7 +43,7 @@ Globals:
   Function:
     Timeout: 900
     MemorySize: 1798
-    Runtime: java17
+    Runtime: java21
     Architectures:
       - arm64
     Environment:

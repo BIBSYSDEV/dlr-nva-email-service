@@ -11,8 +11,8 @@ dependencies {
 }
 
 
-sourceCompatibility = JavaVersion.VERSION_17  // source-code version and must be <= targetCompatibility
-targetCompatibility = JavaVersion.VERSION_17 // bytecode target version
+sourceCompatibility = JavaVersion.VERSION_21  // source-code version and must be <= targetCompatibility
+targetCompatibility = JavaVersion.VERSION_21 // bytecode target version
 
 
 test{
