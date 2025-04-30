@@ -11,10 +11,11 @@ dependencies {
 }
 
 
-sourceCompatibility = JavaVersion.VERSION_17  // source-code version and must be <= targetCompatibility
-targetCompatibility = JavaVersion.VERSION_17 // bytecode target version
+sourceCompatibility = JavaVersion.VERSION_21  // source-code version and must be <= targetCompatibility
+targetCompatibility = JavaVersion.VERSION_21 // bytecode target version
 
 
 test{
     environment "DEFAULT_FROM_ADDRESS", "no-reply@sandbox.nva.aws.unit.no"
+    environment "COGNITO_AUTHORIZER_URLS", "http://localhost:3000"
 }

@@ -12,6 +12,9 @@ Parameters:
     Type: 'AWS::SSM::Parameter::Value<String>'
     Description: The default domain that is used as from_address
     Default: CustomDomain
+  CognitoAuthorizerUrls:
+    Type: AWS::SSM::Parameter::Value<CommaDelimitedList>
+    Default: CognitoAuthorizerUrls
   CustomDomainBasePath:
     Type: String
     Description: Base path mapping in CustomDomain
@@ -40,7 +43,13 @@ Globals:
   Function:
     Timeout: 900
     MemorySize: 1798
-    Runtime: java17
+    Runtime: java21
+    Architectures:
+      - arm64
+    Environment:
+      Variables:
+        API_HOST: !Ref ApiDomain
+        COGNITO_AUTHORIZER_URLS: !Join [ ",", !Ref CognitoAuthorizerUrls ]
 
 Resources:
 # Re-enable if Rest-api is needed
@@ -176,7 +185,6 @@ Resources:
   ScopusEmailBucket:
     Type: AWS::S3::Bucket
     Properties:
-      AccessControl: Private
       BucketName: !Sub "${ScopusEmailBucketName}-${AWS::AccountId}"
       LifecycleConfiguration:
         Rules:
@@ -205,7 +213,6 @@ Resources:
 
   AllowSesToPutToS3:
     Type: AWS::S3::BucketPolicy
-    DependsOn: ScopusEmailBucket
     Properties:
       Bucket: !Ref ScopusEmailBucket
       PolicyDocument:
@@ -229,9 +236,7 @@ Resources:
   MoveScopusEmailsToS3BucketRule:
     Type: AWS::SES::ReceiptRule
     DependsOn:
-      - ScopusEmailBucket
       - AllowSesToPutToS3
-      - ScopusEmailRuleSet
     Properties:
       RuleSetName: !Ref ScopusEmailRuleSet
       Rule:

@@ -8,9 +8,5 @@ allprojects{
 }
 
 tasks.withType(JavaCompile) {
-    options.release = 17
-}
-wrapper {
-    gradleVersion = '8.2.1'
-    distributionType = Wrapper.DistributionType.ALL
+    options.release = 21
 }

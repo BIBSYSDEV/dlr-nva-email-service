@@ -27,6 +27,7 @@ import no.sikt.nva.email.model.EmailRequest;
 import no.unit.nva.stubs.FakeContext;
 import nva.commons.apigateway.RequestInfo;
 import nva.commons.apigateway.exceptions.ApiGatewayException;
+import nva.commons.apigateway.exceptions.ApiIoException;
 import nva.commons.core.Environment;
 import nva.commons.logutils.LogUtils;
 import nva.commons.logutils.TestAppender;
@@ -73,11 +74,15 @@ class EmailRequestHandlerTest {
         var sendEmailResult = new SendEmailResult();
         sendEmailResult.setMessageId(trackId);
         Mockito.when(amazonSimpleEmailService.sendEmail(any(SendEmailRequest.class))).thenReturn(sendEmailResult);
-        var response = handler.processInput(emailRequest, new RequestInfo(), context);
+        var response = handler.processInput(emailRequest, getRequestInfo(), context);
         assertThat(response, is(equalTo(SUCCESS_MESSAGE)));
         Mockito.verify(amazonSimpleEmailService, times(1)).sendEmail(any(SendEmailRequest.class));
         assertThat(handler.getSuccessStatusCode(emailRequest, response), is(equalTo(HttpURLConnection.HTTP_OK)));
         assertThat(appender.getMessages(), containsString(String.format(EMAIL_LOG_INFO_TRACK_ID, trackId)));
+    }
+
+    private static RequestInfo getRequestInfo() throws ApiIoException {
+        return RequestInfo.fromString("{}");
     }
 
     @Test
@@ -87,7 +92,7 @@ class EmailRequestHandlerTest {
         var sendEmailResult = new SendEmailResult();
         sendEmailResult.setMessageId(trackId);
         Mockito.when(amazonSimpleEmailService.sendEmail(any(SendEmailRequest.class))).thenReturn(sendEmailResult);
-        var response = handler.processInput(emailRequest, new RequestInfo(), context);
+        var response = handler.processInput(emailRequest, getRequestInfo(), context);
         assertThat(response, is(equalTo(SUCCESS_MESSAGE)));
         Mockito.verify(amazonSimpleEmailService, times(1))
             .sendEmail(argThat(new SendEmailRequestMatcher(new SendEmailRequest().withSource(defaultAddress))));
@@ -100,7 +105,7 @@ class EmailRequestHandlerTest {
     public void sendsErrorBackWhenEmailRequestFails(Exception exception) {
         Mockito.when(amazonSimpleEmailService.sendEmail(any(SendEmailRequest.class))).thenThrow(exception);
         var apiGatewayException = assertThrows(ApiGatewayException.class, () -> handler.processInput(emailRequest,
-                                                                                                     new RequestInfo(),
+                                                                                                     getRequestInfo(),
                                                                                                      context));
         assertThat(apiGatewayException.getStatusCode(), is(equalTo(HttpURLConnection.HTTP_INTERNAL_ERROR)));
         assertThat(apiGatewayException.getMessage(), containsString(COULD_NOT_SEND_EMAIL_MESSAGE));
