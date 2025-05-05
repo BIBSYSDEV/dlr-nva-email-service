@@ -5,7 +5,7 @@ junit5 = { strictly = '5.12.0' }
 mockito = { strictly = '5.15.2' }
 log4j = { strictly = '2.24.3' }
 slf4j = { require = '2.0.17' }
-awsSDk = '1.12.782'
+awsSDk = '1.12.783'
 awsSdk2 = { strictly = '2.31.28' }
 awsLambdaCore = { strictly = '1.2.3' }
 awsLambdaEvents = { strictly = '3.15.0' }
