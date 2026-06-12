@@ -3,7 +3,6 @@ plugins {
     id 'checkstyle'
     id 'pmd'
     id 'jacoco-report-aggregation'
-//    id 'test-report-aggregation'
 }
 
 
