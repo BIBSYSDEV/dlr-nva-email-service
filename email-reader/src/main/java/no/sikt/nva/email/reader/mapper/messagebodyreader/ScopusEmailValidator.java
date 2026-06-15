@@ -12,13 +12,13 @@ import org.slf4j.LoggerFactory;
 
 public class ScopusEmailValidator {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ScopusEmailValidator.class);
     public static final String RECEIVED_SPF_HEADER = "Received-SPF";
     public static final String COULD_NOT_PARSE_EMAIL = "Could not parse email";
     public static final String COULD_NOT_VERIFY_EMAIL = "Could not verify email";
     public static final String VALID_FROM_LOCAL_PART = "ELSRAPTechSPFDataDefenders";
     public static final String VALID_FROM_DOMAIN = "elsevier.com";
     public static final String VALID_SUBJECT = "Scopus Data available for downloading";
-    private static final Logger logger = LoggerFactory.getLogger(ScopusEmailValidator.class);
     private static final String SPF_CHECK = "^Pass \\(protection\\.outlook\\.com";
     public static final String INVALID_SPF_HEADERS_IN_EMAIL_ERROR_MESSAGE = "Invalid spf headers in email";
     public static final String WRONG_SUBJECT_RECEIVED_S_SHOULD_HAVE_BEEN_MESSAGE = "Wrong subject received: {}, "
@@ -57,7 +57,7 @@ public class ScopusEmailValidator {
                 .map(this::isNotFromElsevierNorSikt)
                 .orElse(true);
         if (wrongSender) {
-            logger.error("Wrong sender in email");
+            LOGGER.error("Wrong sender in email");
         }
         return wrongSender;
     }
@@ -71,7 +71,7 @@ public class ScopusEmailValidator {
     private boolean wrongSubject(Message email) {
         var invalidSubject = !VALID_SUBJECT.equals(email.getSubject());
         if (invalidSubject) {
-            logger.error(WRONG_SUBJECT_RECEIVED_S_SHOULD_HAVE_BEEN_MESSAGE, email.getSubject(), VALID_SUBJECT);
+            LOGGER.error(WRONG_SUBJECT_RECEIVED_S_SHOULD_HAVE_BEEN_MESSAGE, email.getSubject(), VALID_SUBJECT);
         }
         return invalidSubject;
     }
@@ -86,7 +86,7 @@ public class ScopusEmailValidator {
         var spfHeaders = email.getHeader().getFields(RECEIVED_SPF_HEADER);
         var invalidSpfHeaders = spfHeaders.stream().noneMatch(this::hasSpfHeaderFromSikt);
         if (invalidSpfHeaders) {
-            logger.error(INVALID_SPF_HEADERS_IN_EMAIL_ERROR_MESSAGE);
+            LOGGER.error(INVALID_SPF_HEADERS_IN_EMAIL_ERROR_MESSAGE);
         }
         return invalidSpfHeaders;
     }

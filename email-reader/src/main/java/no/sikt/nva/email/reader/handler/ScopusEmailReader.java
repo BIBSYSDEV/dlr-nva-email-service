@@ -27,13 +27,12 @@ import software.amazon.awssdk.services.s3.S3Client;
 
 
 public class ScopusEmailReader implements RequestHandler<S3Event, Set<URI>> {
-    private static final Logger logger = LoggerFactory.getLogger(ScopusEmailReader.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ScopusEmailReader.class);
 
 
 
     public static final String UNABLE_TO_DOWNLOAD_FILE = "Unable to download file";
     public static final String COULD_NOT_PERSIST_FILE_IN_S_3_BUCKET = "Could not persist file in s3 bucket";
-    private static final String S3_URI_TEMPLATE = "s3://%s/%s";
     private static final int SINGLE_EXPECTED_RECORD = 0;
     private final S3Client s3Client;
 
@@ -78,6 +77,7 @@ public class ScopusEmailReader implements RequestHandler<S3Event, Set<URI>> {
     }
 
 
+    @SuppressWarnings("PMD.AvoidCatchingGenericException")
     private URI persistFilesToS3(InputStream inputStream,
                                  UnixPath objectPath,
                                  S3Driver s3Driver,
@@ -105,7 +105,7 @@ public class ScopusEmailReader implements RequestHandler<S3Event, Set<URI>> {
     private Set<URI> extractUrisFromMessage(S3Event event, Message message) {
         var messageReader = new MultipartReader(message, extractBucketName(event), extractObjectKey(event));
         var scopusEmail = messageReader.extractScopusURL();
-        logger.info("Found the following URIS {}", scopusEmail);
+        LOGGER.info("Found the following URIS {}", scopusEmail);
         return scopusEmail;
     }
 
@@ -133,7 +133,7 @@ public class ScopusEmailReader implements RequestHandler<S3Event, Set<URI>> {
     }
 
     private URI createS3BucketUri(S3Event s3Event) {
-        return URI.create(String.format(S3_URI_TEMPLATE, extractBucketName(s3Event), extractObjectKey(s3Event)));
+        return URI.create(String.format("s3://%s/%s", extractBucketName(s3Event), extractObjectKey(s3Event)));
     }
 
     private String extractObjectKey(S3Event event) {

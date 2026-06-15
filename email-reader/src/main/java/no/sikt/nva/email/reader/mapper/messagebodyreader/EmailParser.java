@@ -6,6 +6,7 @@ import org.apache.james.mime4j.message.DefaultMessageBuilder;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 public final class EmailParser {
 
@@ -21,7 +22,7 @@ public final class EmailParser {
     }
 
     private static Message extractMimeMessage(String emailString) throws IOException {
-        return new DefaultMessageBuilder().parseMessage(new ByteArrayInputStream(emailString.getBytes()));
+        return new DefaultMessageBuilder().parseMessage(new ByteArrayInputStream(emailString.getBytes(StandardCharsets.UTF_8)));
     }
 
 

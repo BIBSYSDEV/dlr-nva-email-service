@@ -1,20 +1,24 @@
+plugins {
+    id 'nva.java-conventions'
+}
+
 dependencies {
-    implementation libs.nva.core
-    implementation libs.nva.identifiers
-    implementation libs.nva.s3
-
-    implementation libs.aws.sdk2.s3
-    implementation libs.aws.java.sdk.core
-    implementation libs.aws.sdk2.core
-
-    implementation libs.aws.lambda.java.core
-    implementation libs.aws.lambda.events
-
-    implementation libs.apache.james.mime4j
-
-    implementation libs.bundles.logging
-
-    implementation libs.vavr
-    implementation libs.resilience4j.retry
-
+    api(libs.mime4j.dom)
+    api(nvaCatalog.aws.lambda.core)
+    api(nvaCatalog.aws.lambda.events)
+    api(nvaCatalog.aws.sdk2.s3)
+    implementation(libs.mime4j.core)
+    implementation(nvaCatalog.log4j.core)
+    implementation(nvaCatalog.resilience4j.retry)
+    implementation(nvaCatalog.slf4j.api)
+    implementation(nvaCatalog.vavr)
+    implementation(nvaLibs.core)
+    implementation(nvaLibs.s3)
+    testImplementation(nvaCatalog.aws.sdk2.core)
+    testImplementation(nvaCatalog.aws.sdk2.http.client)
+    testImplementation(nvaCatalog.hamcrest)
+    testImplementation(nvaCatalog.junit.jupiter.api)
+    testImplementation(nvaCatalog.junit.jupiter.params)
+    testImplementation(nvaCatalog.mockito.core)
+    testImplementation(nvaLibs.testutils)
 }

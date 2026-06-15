@@ -26,7 +26,7 @@ import software.amazon.awssdk.services.s3.model.S3Object;
 public class VerifyScopusEmailReceivedHandler
     implements RequestHandler<ScheduledEvent, Void> {
 
-    private static final Logger logger = LoggerFactory.getLogger(VerifyScopusEmailReceivedHandler.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(VerifyScopusEmailReceivedHandler.class);
 
     private static final String NON_SCOPUS_EMAIL_FOUND = "NON SCOPUS EMAIL FOUND {}";
 
@@ -83,7 +83,7 @@ public class VerifyScopusEmailReceivedHandler
     }
 
     private Boolean logErrorAndReturnFalse(Failure<Boolean> fail) {
-        logger.error(NON_SCOPUS_EMAIL_FOUND, fail.getException());
+        LOGGER.error(NON_SCOPUS_EMAIL_FOUND, fail.getException());
         return false;
     }
 
