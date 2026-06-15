@@ -1,15 +1,15 @@
-AWSTemplateFormatVersion: '2010-09-09'
+AWSTemplateFormatVersion: "2010-09-09"
 Transform: AWS::Serverless-2016-10-31
 Description: >
   Lambda sending emails
 
 Parameters:
   CognitoAuthorizerArn:
-    Type: 'AWS::SSM::Parameter::Value<String>'
+    Type: "AWS::SSM::Parameter::Value<String>"
     Description: Reference to Cognito UserPool for the stage
     Default: CognitoAuthorizerArn
   CustomDomain:
-    Type: 'AWS::SSM::Parameter::Value<String>'
+    Type: "AWS::SSM::Parameter::Value<String>"
     Description: The default domain that is used as from_address
     Default: CustomDomain
   CognitoAuthorizerUrls:
@@ -20,7 +20,7 @@ Parameters:
     Description: Base path mapping in CustomDomain
     Default: email
   ApiDomain:
-    Type: 'AWS::SSM::Parameter::Value<String>'
+    Type: "AWS::SSM::Parameter::Value<String>"
     Description: The Api domain
     Default: /NVA/ApiDomain
   ScopusEmailBucketName:
@@ -33,11 +33,11 @@ Parameters:
     Default: "scopus-zip-files-v2"
   SlackSnsArn:
     Type: AWS::SSM::Parameter::Value<String>
-    Default: '/NVA/Monitoring/SlackSnsArn'
+    Default: "/NVA/Monitoring/SlackSnsArn"
   AllowedOrigins:
     Type: String
     Description: comma separated list of external clients that are allowed to contact the HTTP APIs, "*" indicates that all origins are allowed
-    Default: '*'
+    Default: "*"
 
 Globals:
   Function:
@@ -49,7 +49,7 @@ Globals:
     Environment:
       Variables:
         API_HOST: !Ref ApiDomain
-        COGNITO_AUTHORIZER_URLS: !Join [ ",", !Ref CognitoAuthorizerUrls ]
+        COGNITO_AUTHORIZER_URLS: !Join [",", !Ref CognitoAuthorizerUrls]
         LOG4J_CONFIGURATION_FILE: classpath:nva-log4j2.xml
         LOG_LEVEL: "info"
 
@@ -62,8 +62,8 @@ Resources:
         Statement:
           - Effect: Allow
             Principal:
-              Service: [ lambda.amazonaws.com ]
-            Action: [ 'sts:AssumeRole' ]
+              Service: [lambda.amazonaws.com]
+            Action: ["sts:AssumeRole"]
       Policies:
         - PolicyName: writeLog
           PolicyDocument:
@@ -74,7 +74,7 @@ Resources:
                   - logs:CreateLogGroup
                   - logs:CreateLogStream
                   - logs:PutLogEvents
-                Resource: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:*:*'
+                Resource: !Sub "arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:*:*"
         - PolicyName: sendMail
           PolicyDocument:
             Version: 2012-10-17
@@ -104,7 +104,7 @@ Resources:
           Type: S3
           Properties:
             Bucket: !Ref ScopusEmailBucket
-            Events: 's3:ObjectCreated:*'
+            Events: "s3:ObjectCreated:*"
 
   ScopusEmailBucket:
     Type: AWS::S3::Bucket
@@ -116,7 +116,6 @@ Resources:
             Status: Enabled
             ExpirationInDays: 20
 
-
   # Set up automatically verified from_address domain: This will only work for Route 53 domains.
   # Non route 53 domains needs manually updating certificates.
   VerifiedFromSenderForSimpleEmail:
@@ -125,7 +124,7 @@ Resources:
       DkimAttributes:
         SigningEnabled: true
       DkimSigningAttributes:
-        NextSigningKeyLength: 'RSA_2048_BIT'
+        NextSigningKeyLength: "RSA_2048_BIT"
       EmailIdentity: !Ref CustomDomain
       FeedbackAttributes:
         EmailForwardingEnabled: true
@@ -133,14 +132,14 @@ Resources:
   ScopusImportEmailReceiver:
     Type: AWS::SES::EmailIdentity
     Properties:
-      EmailIdentity: !Sub 'scopus@${CustomDomain}'
+      EmailIdentity: !Sub "scopus@${CustomDomain}"
 
   AllowSesToPutToS3:
     Type: AWS::S3::BucketPolicy
     Properties:
       Bucket: !Ref ScopusEmailBucket
       PolicyDocument:
-        Version: '2012-10-17'
+        Version: "2012-10-17"
         Statement:
           - Effect: Allow
             Action:
@@ -150,12 +149,12 @@ Resources:
               Service: "ses.amazonaws.com"
             Condition:
               StringEquals:
-                'AWS:SourceAccount': !Ref AWS::AccountId
+                "AWS:SourceAccount": !Ref AWS::AccountId
 
   ScopusEmailRuleSet:
     Type: AWS::SES::ReceiptRuleSet
     Properties:
-      RuleSetName: !Sub 'email-receive-ruleset-${AWS::AccountId}'
+      RuleSetName: !Sub "email-receive-ruleset-${AWS::AccountId}"
 
   MoveScopusEmailsToS3BucketRule:
     Type: AWS::SES::ReceiptRule
@@ -164,9 +163,9 @@ Resources:
     Properties:
       RuleSetName: !Ref ScopusEmailRuleSet
       Rule:
-        Name: !Sub 'scopus-email-rule-${AWS::AccountId}'
+        Name: !Sub "scopus-email-rule-${AWS::AccountId}"
         Recipients:
-          - !Sub 'scopus@${CustomDomain}'
+          - !Sub "scopus@${CustomDomain}"
         Enabled: true
         ScanEnabled: true # when we get ip-address for
         Actions:
@@ -186,8 +185,7 @@ Resources:
         CheckForEmail:
           Type: Schedule
           Properties:
-            Schedule: 'cron(0 23 ? * WED *)'
-
+            Schedule: "cron(0 23 ? * WED *)"
 
   VerifyScopusEmailReceivedAlarm:
     Type: AWS::CloudWatch::Alarm
