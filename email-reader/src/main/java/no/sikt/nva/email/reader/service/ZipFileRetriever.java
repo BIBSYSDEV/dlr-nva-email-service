@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 
 public class ZipFileRetriever implements FileRetriever {
 
-    private static final Logger logger = LoggerFactory.getLogger(ZipFileRetriever.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ZipFileRetriever.class);
 
     private final HttpClient httpClient;
 
@@ -39,7 +39,7 @@ public class ZipFileRetriever implements FileRetriever {
 
     private InputStream getBodyFromResponse(HttpResponse<InputStream> response) {
         if (response.statusCode() != HttpURLConnection.HTTP_OK) {
-            logger.error("Request failed with status code: {}, for url: {}", response.statusCode(),
+            LOGGER.error("Request failed with status code: {}, for url: {}", response.statusCode(),
                          response.request().uri().toString());
             throw new RuntimeException("Request failed with status code: " + response.statusCode());
         }

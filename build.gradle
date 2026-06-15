@@ -1,12 +1,35 @@
-plugins{
-    id 'dlr.nva.email.service.rootplugin'
+plugins {
+    id 'nva.root-module-conventions'
 }
 
-//workaround for jacoco-merge to work
-allprojects{
-    apply plugin: 'dlr.nva.email.service.java-conventions'
+nva {
+    dependencyAnalysis {
+        enforced = true
+    }
+    spotless {
+        enabled = false // FIXME
+    }
 }
 
-tasks.withType(JavaCompile) {
-    options.release = 21
+subprojects {
+    pluginManager.withPlugin('nva.java-conventions') {
+        nva {
+            errorprone {
+                allErrorsAsWarnings = false
+            }
+            java {
+                languageVersion = 21
+            }
+            pmd {
+                rulesetFile = rootProject.file('config/pmd/ruleset.xml')
+            }
+            spotless {
+                enabled = false // FIXME
+            }
+        }
+        dependencies {
+            testRuntimeOnly(nvaCatalog.junit.jupiter.engine)
+            testRuntimeOnly(nvaCatalog.junit.platform.launcher)
+        }
+    }
 }

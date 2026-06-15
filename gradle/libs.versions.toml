@@ -1,54 +1,8 @@
 [versions]
-nva = "2.2.4"
-hamcrest = { strictly = '3.0' }
-junit5 = { strictly = '5.12.0' }
-mockito = { strictly = '5.15.2' }
-log4j = { strictly = '2.24.3' }
-slf4j = { require = '2.0.17' }
-awsSDk = '1.12.782'
-awsSdk2 = { strictly = '2.31.28' }
-awsLambdaCore = { strictly = '1.2.3' }
-awsLambdaEvents = { strictly = '3.15.0' }
-mime4j = { strictly = '0.8.12' }
-vavrVersion = '0.10.6'
-resilience4jRetry = '2.3.0'
+mime4j = { strictly = '0.8.14' }
 
 [libraries]
-nva-core = { group = "com.github.bibsysdev", name = "core", version.ref = "nva" }
-nva-identifiers = { group = 'com.github.bibsysdev', name = 'identifiers', version.ref = 'nva' }
-nva-apigateway = { group = "com.github.bibsysdev", name = "apigateway", version.ref = "nva" }
-nva-logutils = { group = "com.github.bibsysdev", name = "logutils", version.ref = "nva" }
-nva-testutils = { group = "com.github.bibsysdev", name = "nvatestutils", version.ref = "nva" }
-nva-s3 = { group = 'com.github.bibsysdev', name = 's3', version.ref = 'nva' }
-
-aws-lambda-java-core = { group = 'com.amazonaws', name = 'aws-lambda-java-core', version.ref = 'awsLambdaCore' }
-aws-lambda-events = { group = 'com.amazonaws', name = 'aws-lambda-java-events', version.ref = 'awsLambdaEvents' }
-aws-java-sdk-core = { group = 'com.amazonaws', name = 'aws-java-sdk-core', version.ref = 'awsSDk' }
-aws-ses = { group = 'com.amazonaws', name = 'aws-java-sdk-ses', version.ref = 'awsSDk' }
-
-aws-sdk2-core = { group = 'software.amazon.awssdk', name = 'sdk-core', version.ref = 'awsSdk2' }
-aws-sdk2-s3 = { group = 'software.amazon.awssdk', name = 's3', version.ref = 'awsSdk2' }
-
-apache-james-mime4j = { group = 'org.apache.james', name = 'apache-mime4j', version.ref = 'mime4j' }
-
-vavr = { group = 'io.vavr', name = 'vavr', version.ref = 'vavrVersion' }
-resilience4j-retry = { group = 'io.github.resilience4j', name = 'resilience4j-retry', version.ref = 'resilience4jRetry' }
-
-mockito-core = { group = 'org.mockito', name = 'mockito-core', version.ref = 'mockito' }
-hamcrest-base = { group = 'org.hamcrest', name = 'hamcrest', version.ref = 'hamcrest' }
-hamcrest-core = { group = 'org.hamcrest', name = 'hamcrest-core', version.ref = 'hamcrest' }
-junit-jupiter-engine = { group = 'org.junit.jupiter', name = 'junit-jupiter-engine', version.ref = 'junit5' }
-junit-jupiter-params = { group = 'org.junit.jupiter', name = 'junit-jupiter-params', version.ref = 'junit5' }
-junit-jupiter-api = { group = 'org.junit.jupiter', name = 'junit-jupiter-api', version.ref = 'junit5' }
-junit-vintage-engine = { group = 'org.junit.vintage', name = 'junit-vintage-engine', version.ref = 'junit5' }
-
-log4j-core = { group = 'org.apache.logging.log4j', name = 'log4j-core', version.ref = 'log4j' }
-log4j-api = { group = 'org.apache.logging.log4j', name = 'log4j-api', version.ref = 'log4j' }
-log4j-slf4j-impl = { group = 'org.apache.logging.log4j', name = 'log4j-slf4j2-impl', version.ref = 'log4j' }
-slf4j-api = { group = 'org.slf4j', name = 'slf4j-api', version.ref = 'slf4j' }
-
+mime4j-core = { group = 'org.apache.james', name = 'apache-mime4j-core', version.ref = 'mime4j' }
+mime4j-dom = { group = 'org.apache.james', name = 'apache-mime4j-dom', version.ref = 'mime4j' }
 
 [bundles]
-testing = ["mockito-core", "hamcrest-base", "hamcrest-core", "junit-jupiter-engine", "junit-jupiter-params",
-    "junit-jupiter-api", "junit-vintage-engine", "nva-testutils", "nva-logutils"]
-logging = ['log4j-core', 'log4j-api', 'log4j-slf4j-impl', 'slf4j-api']
