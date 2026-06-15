@@ -25,7 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.services.s3.S3Client;
 
-
+@SuppressWarnings("PMD.TooManyMethods")
 public class ScopusEmailReader implements RequestHandler<S3Event, Set<URI>> {
     private static final Logger LOGGER = LoggerFactory.getLogger(ScopusEmailReader.class);
 
@@ -85,9 +85,11 @@ public class ScopusEmailReader implements RequestHandler<S3Event, Set<URI>> {
         try {
             return s3Driver.insertFile(objectPath, inputStream);
         } catch (Exception e) {
+            LOGGER.error(COULD_NOT_PERSIST_FILE_IN_S_3_BUCKET, e);
             throw new EmailException(COULD_NOT_PERSIST_FILE_IN_S_3_BUCKET,
                     extractBucketName(event),
-                    extractObjectKey(event));
+                    extractObjectKey(event),
+                    e);
         }
     }
 

@@ -11,7 +11,6 @@
 
   <rule ref="category/java/errorprone.xml">
     <exclude name="MissingSerialVersionUID"/>
-    <exclude name="NonSerializableClass"/>
   </rule>
 
   <rule ref="category/java/multithreading.xml">
@@ -20,29 +19,19 @@
   </rule>
 
   <rule ref="category/java/bestpractices.xml">
-    <exclude name="SystemPrintln"/>
     <exclude name="GuardLogStatement"/>
-    <exclude name="AvoidPrintStackTrace"/>
-
-    <!-- In TableManager we map ResourceNotFoundException to TableNotFoundException -->
-    <exclude name="PreserveStackTrace"/>
-
   </rule>
 
   <rule ref="category/java/codestyle.xml">
     <exclude name="UseExplicitTypes"/>
     <exclude name="ShortClassName"/>
-    <exclude name="AtLeastOneConstructor"/>
     <exclude name="LongVariable"/>
     <exclude name="ShortVariable"/>
-    <exclude name="OnlyOneReturn"/>
     <exclude name="LocalVariableCouldBeFinal"/>
     <exclude name="MethodArgumentCouldBeFinal"/>
     <exclude name="TooManyStaticImports"/>
-    <exclude name="ClassNamingConventions"/>
     <exclude name="UnnecessaryConstructor"/>
     <exclude name="CommentDefaultAccessModifier"/>
-    <exclude name="ConfusingTernary"/>
   </rule>
 
 
@@ -57,12 +46,6 @@
     <exclude name="LawOfDemeter"/>
     <exclude name="DataClass"/>
     <exclude name="ExcessiveImports"/>
-    <exclude name="AvoidCatchingGenericException"/>
-    <exclude name="SignatureDeclareThrowsException"/>
-    <exclude name="UseUtilityClass"/>
-    <exclude name="UseObjectForClearerAPI"/>
-    <exclude name="TooManyMethods"/>
-    <exclude name="CyclomaticComplexity"/>
 
     <!-- This rule does not allow the Lambda Handler to cast  the ContainerInitializationException
         to a RuntimeException.
