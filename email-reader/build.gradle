@@ -14,7 +14,7 @@ dependencies {
     implementation(nvaCatalog.vavr)
     implementation(nvaLibs.core)
     implementation(nvaLibs.s3)
-    testImplementation(nvaCatalog.aws.sdk2.core)
+    testImplementation(nvaCatalog.aws.sdk2.sdk.core)
     testImplementation(nvaCatalog.aws.sdk2.http.client)
     testImplementation(nvaCatalog.hamcrest)
     testImplementation(nvaCatalog.junit.jupiter.api)
