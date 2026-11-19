@@ -25,7 +25,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import software.amazon.awssdk.services.s3.S3Client;
 
-@SuppressWarnings("PMD.TooManyMethods")
 public class ScopusEmailReader implements RequestHandler<S3Event, Set<URI>> {
   private static final Logger LOGGER = LoggerFactory.getLogger(ScopusEmailReader.class);
 
